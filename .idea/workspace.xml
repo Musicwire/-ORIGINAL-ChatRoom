@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7935cc9f-60ce-4696-8863-f90cb0bb402c" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/logic.py" afterPath="$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/logic.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/protocol.py" afterPath="$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/protocol.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/server.py" afterPath="$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/server.py" />
-    </list>
+    <list default="true" id="7935cc9f-60ce-4696-8863-f90cb0bb402c" name="Default" comment="" />
     <ignored path="ChatRoom.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
@@ -45,8 +40,8 @@
       <file leaf-file-name="protocol.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/protocol.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="239" column="33" selection-start-line="239" selection-start-column="14" selection-end-line="239" selection-end-column="33" />
+            <state relative-caret-position="64">
+              <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="22" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -57,7 +52,7 @@
       <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="624">
+            <state relative-caret-position="25">
               <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
               <folding />
             </state>
@@ -77,8 +72,8 @@
       <file leaf-file-name="logic.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/logic.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="74" column="40" selection-start-line="74" selection-start-column="21" selection-end-line="74" selection-end-column="40" />
+            <state relative-caret-position="490">
+              <caret line="123" column="65" selection-start-line="123" selection-start-column="65" selection-end-line="123" selection-end-column="65" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -130,8 +125,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="764" />
-    <option name="width" value="676" />
+    <option name="width" value="1440" />
     <option name="height" value="900" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
@@ -456,7 +450,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="764" y="0" width="676" height="900" extended-state="0" />
+    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32446042" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -504,22 +498,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="624">
-          <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/tcpstreampackage.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="96">
-          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/db.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="266">
@@ -527,6 +505,14 @@
           <folding>
             <element signature="e#0#36#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="25">
+          <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -540,10 +526,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/tcpstreampackage.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="96">
+          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/protocol.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="239" column="33" selection-start-line="239" selection-start-column="14" selection-end-line="239" selection-end-column="33" />
+        <state relative-caret-position="64">
+          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="22" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
@@ -552,8 +546,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Server_by_Bacon&amp;WuYuan/logic.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="74" column="40" selection-start-line="74" selection-start-column="21" selection-end-line="74" selection-end-column="40" />
+        <state relative-caret-position="490">
+          <caret line="123" column="65" selection-start-line="123" selection-start-column="65" selection-end-line="123" selection-end-column="65" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
