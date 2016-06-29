@@ -1,4 +1,3 @@
-#coding: utf-8
 import datetime
 import json
 
@@ -16,11 +15,6 @@ from protocol import PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PA
 
 #发送协议
 from protocol import ComplexEncoder, SendToClientPackage, SendToClientPackageRegister, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriend, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
-
-
-
-
-
 
 class Logic(object):
 

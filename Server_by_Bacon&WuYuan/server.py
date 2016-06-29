@@ -1,6 +1,3 @@
-#! /usr/bin/env python
-#coding=utf-8
-
 from tornado.tcpserver import TCPServer
 from tornado.iostream import IOStream, StreamClosedError
 from tornado.ioloop  import IOLoop

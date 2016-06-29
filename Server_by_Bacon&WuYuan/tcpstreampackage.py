@@ -1,6 +1,3 @@
-# -*- coding:utf-8 -*-
-__author__ = 'watsy'
-
 import json
 from protocol import Protocol
 
