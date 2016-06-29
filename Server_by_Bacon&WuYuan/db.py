@@ -170,7 +170,7 @@ class DBEngine(object):
             if travel:
                 return self.session.query(DBTraveluser).filter(DBTraveluser.travelid == travel.tid)
         except ValueError as err:
-            print err
+            print(err)
 
         return None
 

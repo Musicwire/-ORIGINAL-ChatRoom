@@ -2,37 +2,20 @@ import datetime
 import json
 
 from db import DBEngine , DBUser , DBRelationship, DBOfflineMsg, DBTravel, DBTraveluser, DBOfflineAddFriend
-
-from models import UserObject, UserModel
-from models import USERS_PAGES_SIZE
-
-
-#接受协议
-from protocol import PackageLogin, PackageRegister, PackageGetNotFriendsByCodeAndDate, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage
-
-#错误编码
-from protocol import PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID
-
-#发送协议
-from protocol import ComplexEncoder, SendToClientPackage, SendToClientPackageRegister, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriend, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
+from models import UserObject, UserModel, USERS_PAGES_SIZE
+from protocol import PackageLogin, PackageRegister, PackageGetNotFriendsByCodeAndDate, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID, ComplexEncoder, SendToClientPackage, SendToClientPackageRegister, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriend, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
 
 class Logic(object):
 
     def __init__(self):
-
         self.onlineUsers = UserModel()
         self.dbEngine = DBEngine()
 
-
     def reset(self):
-
         self.onlineUsers.reset()
 
-
     def findBadInput(self, inputstring):
-        """
-        输入是否合法，防止sql注入
-        """
+        #输入是否合法，防止sql注入#
         if '\'' in inputstring:
             return True
         elif '\"' in inputstring:
@@ -46,9 +29,7 @@ class Logic(object):
     #协议处理部分
     ####################################################################################
     def handlePackage(self, connection , package):
-        """
-        逻辑处理部分
-        """
+        ##逻辑处理部分##
         if isinstance(package, PackageRegister):
             self.handleUserRegister(connection , package)
 
@@ -76,8 +57,6 @@ class Logic(object):
         elif isinstance( package , PackageSendChatMessage ):
             self.handleSendChatMessage( connection , package )
 
-
-
     def closeConnection(self, connection):
 
         user = self.onlineUsers.getUserByConnection(connection)
@@ -87,61 +66,57 @@ class Logic(object):
         if len(friends) > 0:
             self.broadcastOnlineStatusToAllFriend( user , 0 )
 
-
     ####################################################################################
     #逻辑处理
     ####################################################################################
     def handleUserRegister(self, connection , package):
-        """
-        用户注册处理
-        """
+        #用户注册处理#
+
         retPackage = SendToClientPackage('register')
 
         #step 1，检查参数合法性
         if self.findBadInput(package.username) or self.findBadInput(package.password):
-            #帐号异常
+            #帐号异常#
             retPackage.errcode = PACKAGE_ERRCODE_INPUTWRONG
 
         #step 2，检查参数长度
         elif len(package.username) < 6 or len(package.password) < 6:
-            #长度太小
+            #长度太小#
             retPackage.errcode = PACKAGE_ERRCODE_LENGTHTOSHORT
 
         else:
             #step 3，检查用户是否存在
             db_user = self.dbEngine.isUserExist(package.username, package.password)
 
-            #不存在用户，插入数据库
-            if not db_user:
-                #插入数据库
+            #已经存在用户，返回重新注册
+            if db_user:
+                retPackage.errcode = PACKAGE_ERRCODE_USERISEXIST
+
+            #不存在,插入数据库
+            else:
                 self.dbEngine.register_new_user(package.username, package.password)
                 retPackage.status = 1
 
-            else:
-                #已经存在用户，返回从新注册
-                retPackage.errcode = PACKAGE_ERRCODE_USERISEXIST
-
-        connection.send_message( json.dumps(retPackage, cls=ComplexEncoder) )
-
+        connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
     def handleUserLogin(self, connection , package):
-        """
-        用户登录处理
-        """
+        #用户登录处理
         retPackage = SendToClientPackage('login')
+
         #step 1，检查参数合法性
         if self.findBadInput(package.username) or self.findBadInput(package.password):
-
             retPackage.errcode = PACKAGE_ERRCODE_INPUTWRONG
 
         else:
-
             #step 2. 查询数据库
             db_user = self.dbEngine.isUserExist(package.username, package.password)
 
             if db_user:
+                #用户不存在，提醒注册
+                retPackage.errcode = 10010
 
+            else:
                 #step 1. 枚举在线好友，如果在线，退掉
                 online_user = self.onlineUsers.getUserExistByUsername(package.username)
                 if online_user:
@@ -149,12 +124,12 @@ class Logic(object):
                     another = SendToClientPackage('anotherlogin')
                     another.status = 1
 
-                    online_user.connection.send_message( json.dumps( another , cls= ComplexEncoder ) )
+                    online_user.connection.send_message(json.dumps(another , cls= ComplexEncoder))
 
                     #step 2.关闭联接
                     online_user.connection.close()
 
-                #从新加入到在线用户
+                #重新加入到在线用户
                 user = UserObject(connection, db_user)
                 self.onlineUsers.addNewOnlineUser(user)
 
@@ -163,7 +138,6 @@ class Logic(object):
                                                           user.DBUser.username,
                                                           user.DBUser.sex,
                                                           user.DBUser.description)
-
 
                 #加载好友列表
                 self.getUserFriendsWithDBAndOnLineUsers( user )
@@ -179,10 +153,6 @@ class Logic(object):
 
                 #修改在线列表,本人上线
                 self.setUserOnlineInOnlineUsersFriends( user )
-
-            else:
-                #用户不存在，提醒注册
-                retPackage.errcode = 10010
 
         connection.send_message( json.dumps(retPackage, cls=ComplexEncoder) )
 

@@ -1,9 +1,8 @@
 from tornado.tcpserver import TCPServer
-from tornado.iostream import IOStream, StreamClosedError
+from tornado.iostream import  StreamClosedError
 from tornado.ioloop  import IOLoop
 
 from tcpstreampackage import TCPStreamPackage
-from models import UserModel
 from logic import Logic
 
 ######################################################################
@@ -18,7 +17,7 @@ class Connection(object):
         self._stream_package = TCPStreamPackage(self.onPackageDecode)
         self.read_message()
 
-        print "A new user has entered the chat room.", address
+        print("A new user has entered the chat room.", address)
 
     ######################################################################
     def read_message(self):
@@ -36,13 +35,13 @@ class Connection(object):
         try:
             self._stream.write(data)
         except StreamClosedError as err:
-            print "%s error:\n%r\ndata: %s" % (self._address, err, data)
+            print("%s error:\n%r\ndata: %s" % (self._address, err, data))
 
     def close(self):
         self._stream.close()
 
     def on_close(self):
-        print "A user has left the chat room.", self._address
+        print("A user has left the chat room.", self._address)
         Connection.logic.closeConnection(self)
 
     ######################################################################
@@ -57,12 +56,12 @@ class Connection(object):
 ######################################################################
 class ChatServer(TCPServer):
     def handle_stream(self, stream, address):
-        print "New connection :", address, stream
+        print("New connection :", address, stream)
         Connection(stream, address)
 
 
 if __name__ == '__main__':
-    print "Server start ......"
+    print("Server start ......")
     server = ChatServer()
     server.listen(6000)
     IOLoop.instance().start()

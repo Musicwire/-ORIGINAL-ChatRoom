@@ -350,8 +350,6 @@ class SendToClientPackage(object):
     def reprJSON(self):
         return dict(datas = self.obj, action = self.action , status = self.status, errcode = self.errcode)
 
-
-
 ####################################################################################
 #协议解析
 ####################################################################################
