@@ -6,7 +6,6 @@ __author__ = 'watsy'
 import json
 import types
 
-
 #通用错误
 PACKAGE_ERRCODE_USERID              =   10001
 PACKAGE_ERRCODE_FRIENDID            =   10002
@@ -39,7 +38,7 @@ class Package(object):
         for (k , v) in datas.items():
 
             try:
-                if  type(self.__getattribute__(k)) is not types.NoneType:
+                if type(self.__getattribute__(k)) is not types.NoneType:
                     self.__setattr__(k, v)
             except AttributeError:
                 pass
@@ -88,7 +87,7 @@ class PackageGetNotFriendsByCodeAndDate(Package):
 #申请添加好友
 class PackageAddFriendRequest(Package):
     """
-     "uid":1,
+    "uid":1,
     "fid":2,
     "msg":"hello, i'am watsy"
     """
@@ -147,8 +146,6 @@ class PackageDeleteFriend(Package):
         self.uid = 0
         self.fid = 0
 
-
-
 class PackageGetFriendDetail(Package):
     """
     查询用户资料
@@ -163,8 +160,6 @@ class PackageGetFriendDetail(Package):
 
         self.uid = 0
         self.fid = 0
-
-
 
 class PackageSendChatMessage(Package):
     """
@@ -183,11 +178,9 @@ class PackageSendChatMessage(Package):
         self.chatmsg = ''
 
 
-
 ####################################################################################
 #发送协议
 ####################################################################################
-
 
 
 class ComplexEncoder(json.JSONEncoder):
@@ -197,13 +190,10 @@ class ComplexEncoder(json.JSONEncoder):
         else:
             return json.JSONEncoder.default(self, obj)
 
-
-
 class SendToClientPackageRegister(object):
 
     def __init__(self):
         pass
-
 
 class SendToClientPackageUser(object):
 
@@ -215,7 +205,6 @@ class SendToClientPackageUser(object):
         self.description = description
         self.online = online
 
-
     def reprJSON(self):
 
         return dict(
@@ -226,8 +215,6 @@ class SendToClientPackageUser(object):
             online = self.online,
         )
 
-
-
 class SendToClientAddFriend(object):
     """
     添加好友，状态返回
@@ -235,8 +222,6 @@ class SendToClientAddFriend(object):
     def __init__(self):
         super(SendToClientAddFriend , self).__init__()
         pass
-
-
 
 class SendToClientAddFriendStatusReuest(object):
     """
@@ -266,8 +251,6 @@ class SendToClientAddFriendStatusReuest(object):
             agree = self.agree,
 
         )
-
-
 
 class SendToClientPackageRecvAddFriendRequest(object):
     """
@@ -314,8 +297,6 @@ class SendToClientPackageChatMessage(object):
 
         return dict(fromid = self.fromid , toid = self.toid, chatmsg = self.chatmsg)
 
-
-
 class SendToClientPackageOfflineChatMessage(object):
 
     def __init__(self , fromid , toid, msg , senddate):
@@ -333,7 +314,6 @@ class SendToClientPackageOfflineChatMessage(object):
             chatmsg = self.chatmsg,
             senddate = self.senddate.strftime("%Y-%m-%d %H:%M:%S"),
         )
-
 
 class SendToClientUserOnOffStatus(object):
     """
@@ -418,4 +398,3 @@ class Protocol(object):
 
 
         return None
-

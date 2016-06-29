@@ -34,15 +34,12 @@ class Connection(object):
         # print data
         self._stream_package.add( data)
 
-
     def send_message(self, data):
 
         try:
             self._stream.write(data)
         except StreamClosedError as err:
             print "%s error:\n%r\ndata: %s" % (self._address, err, data)
-
-
 
     def close(self):
         self._stream.close()
@@ -57,7 +54,6 @@ class Connection(object):
 
         # print package
         Connection.logic.handlePackage(self , package)
-
 
 ######################################################################
 #

@@ -133,16 +133,3 @@ class UserModel(object):
         """
         del self.users
         self.users = {}
-
-
-
-
-
-
-
-
-
-
-
-
-

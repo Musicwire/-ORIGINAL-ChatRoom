@@ -1,10 +1,6 @@
 #coding: utf-8
-__author__ = 'watsy'
-
 import datetime
 import json
-
-
 
 from db import DBEngine , DBUser , DBRelationship, DBOfflineMsg, DBTravel, DBTraveluser, DBOfflineAddFriend
 
@@ -13,21 +9,13 @@ from models import USERS_PAGES_SIZE
 
 
 #接受协议
-from protocol import PackageLogin, PackageRegister, PackageGetNotFriendsByCodeAndDate, \
-    PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , \
-    PackageGetFriendDetail , PackageSendChatMessage
+from protocol import PackageLogin, PackageRegister, PackageGetNotFriendsByCodeAndDate, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage
 
 #错误编码
-from protocol import PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , \
-    PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID , \
-    PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID
+from protocol import PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID
 
 #发送协议
-from protocol import ComplexEncoder, SendToClientPackage, \
-    SendToClientPackageRegister, SendToClientPackageUser, \
-    SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, \
-    SendToClientAddFriend, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage , \
-    SendToClientUserOnOffStatus
+from protocol import ComplexEncoder, SendToClientPackage, SendToClientPackageRegister, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriend, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
 
 
 
@@ -332,7 +320,7 @@ class Logic(object):
                             user.addFriend(online_friend)
 
                     else:
-                        #数据库中不存在此用户
+                        
                         retPackage.errcode = PACKAGE_ERRCODE_NOTHISUSER
 
                         #返回添加好友状态

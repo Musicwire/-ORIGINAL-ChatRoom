@@ -295,12 +295,3 @@ class DBEngine(object):
         offChatMsg = DBOfflineMsg(userId, friendId, message, lastdate)
         self.session.add(offChatMsg)
         self.session.commit()
-
-
-
-
-
-
-
-
-
