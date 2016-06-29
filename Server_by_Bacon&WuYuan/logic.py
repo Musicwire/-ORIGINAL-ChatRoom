@@ -3,7 +3,7 @@ import json
 
 from db import DBEngine , DBUser , DBRelationship, DBOfflineMsg, DBTravel, DBTraveluser, DBOfflineAddFriend
 from models import UserObject, UserModel, USERS_PAGES_SIZE
-from protocol import PackageLogin, PackageRegister, PackageGetNotFriendsByCodeAndDate, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID, ComplexEncoder, SendToClientPackage, SendToClientPackageRegister, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriend, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
+from protocol import PackageLogin, PackageRegister, PackageGetNotFriendsByCodeAndDate, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID, ComplexEncoder, SendToClientPackage, SendToClientPackageRegister, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
 
 class Logic(object):
 
@@ -357,18 +357,16 @@ class Logic(object):
 
 
     def handleGetFriendDetail(self, connection , package):
-        #获得用户相信信息
+        #获得用户相应信息
 
         user = self.onlineUsers.getUserByConnection(connection)
 
         retPackage = SendToClientPackage('delfriend')
         #自己的id
         if user.DBUser.uid == int(package.uid) and user.DBUser.uid != int(package.fid):
-
             retPackage.status = 1
 
-            #获取用户详细资料返回
-
+        #获取用户详细资料返回
         else:
             retPackage.errcode = PACKAGE_ERRCODE_USERID
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))

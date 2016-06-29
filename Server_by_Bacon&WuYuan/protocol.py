@@ -28,9 +28,7 @@ class Package(object):
         pass
 
     def parser(self, datas):
-
         for (k, v) in datas.items():
-
             try:
                 if type(self.__getattribute__(k)) is not types.NoneType:
                     self.__setattr__(k, v)
@@ -97,7 +95,7 @@ class PackageDeleteFriend(Package):
         self.uid = 0
         self.fid = 0
 
-
+#获取好友信息
 class PackageGetFriendDetail(Package):
     def __init__(self):
         super(PackageGetFriendDetail, self).__init__()
@@ -105,7 +103,7 @@ class PackageGetFriendDetail(Package):
         self.uid = 0
         self.fid = 0
 
-
+#发送好友信息
 class PackageSendChatMessage(Package):
     def __init__(self):
         super(PackageSendChatMessage, self).__init__()
@@ -128,13 +126,14 @@ class ComplexEncoder(json.JSONEncoder):
 
 
 class SendToClientPackageRegister(object):
+    #返回注册信息!!!!!(这个功能缺失)!!!!!
     def __init__(self):
         pass
 
 
 class SendToClientPackageUser(object):
-    def __init__(self , uid, username , sex , description , online = False):
-
+    #
+    def __init__(self, uid, username, sex, description, online=False):
         self.uid = uid
         self.username = username
         self.sex = sex
@@ -142,26 +141,16 @@ class SendToClientPackageUser(object):
         self.online = online
 
     def reprJSON(self):
-
-        return dict(
-            uid=self.uid,
-            username=self.username,
-            sex=self.sex,
-            description=self.description,
-            online=self.online)
-
-
-class SendToClientAddFriend(object):
-    #添加好友，状态返回
-    def __init__(self):
-        super(SendToClientAddFriend , self).__init__()
-        pass
+        return dict(uid=self.uid,
+                    username=self.username,
+                    sex=self.sex,
+                    description=self.description,
+                    online=self.online)
 
 
 class SendToClientAddFriendStatusReuest(object):
     #添加好友状态返回
-    def __init__(self , fromid, toid, username , sex, description, agree):
-
+    def __init__(self, fromid, toid, username, sex, description, agree):
         self.fromid = fromid
         self.toid = toid
         self.username = username
@@ -170,19 +159,17 @@ class SendToClientAddFriendStatusReuest(object):
         self.agree = agree
 
     def reprJSON(self):
-        return dict(
-            fromid=self.fromid,
-            toid=self.toid,
-            username=self.username,
-            sex=self.sex,
-            description=self.description,
-            agree=self.agree)
+        return dict(fromid=self.fromid,
+                    toid=self.toid,
+                    username=self.username,
+                    sex=self.sex,
+                    description=self.description,
+                    agree=self.agree)
 
 
 class SendToClientPackageRecvAddFriendRequest(object):
     #发送有人申请添加消息
-    def __init__(self, fromid, username, toid, sex , description, msg, date):
-
+    def __init__(self, fromid, username, toid, sex, description, msg, date):
         self.fromid = fromid
         self.toid = toid
 
@@ -194,45 +181,45 @@ class SendToClientPackageRecvAddFriendRequest(object):
         self.senddate = date
 
     def reprJSON(self):
-        return dict(
-            fromid=self.fromid,
-            toid=self.toid,
-            username=self.username,
-            sex=self.sex,
-            description=self.description,
-            msg=self.msg,
-            senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
+        return dict(fromid=self.fromid,
+                    toid=self.toid,
+                    username=self.username,
+                    sex=self.sex,
+                    description=self.description,
+                    msg=self.msg,
+                    senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
 
 class SendToClientPackageChatMessage(object):
-    def __init__(self , fromid = 0, toid = 0, chatmsg = ''):
-
+    #发送聊天信息
+    def __init__(self, fromid=0, toid=0, chatmsg=''):
         self.fromid = fromid
         self.toid = toid
         self.chatmsg = chatmsg
 
     def reprJSON(self):
-        return dict(fromid = self.fromid , toid = self.toid, chatmsg = self.chatmsg)
+        return dict(fromid=self.fromid,
+                    toid=self.toid,
+                    chatmsg=self.chatmsg)
 
 class SendToClientPackageOfflineChatMessage(object):
-    def __init__(self , fromid , toid, msg , senddate):
-
+    #发送离线聊天信息
+    def __init__(self, fromid, toid, msg, senddate):
         self.fromid = fromid
         self.toid = toid
         self.chatmsg = msg
         self.senddate = senddate
 
     def reprJSON(self):
-        return dict(
-            fromid=self.fromid,
-            toid=self.toid,
-            chatmsg=self.chatmsg,
-            senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
+        return dict(fromid=self.fromid,
+                    toid=self.toid,
+                    chatmsg=self.chatmsg,
+                    senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
 
 class SendToClientUserOnOffStatus(object):
-    #用户上线下线消息
-    def __init__(self , uid, username , sex , description , online):
+    #用户上线下线提醒
+    def __init__(self, uid, username, sex, description, online):
         self.uid = uid
         self.username = username
         self.sex = sex
@@ -240,15 +227,15 @@ class SendToClientUserOnOffStatus(object):
         self.online = online
 
     def reprJSON(self):
-        return dict(
-            uid=self.uid,
-            username=self.username,
-            sex=self.sex,
-            description=self.description,
-            online=self.online)
+        return dict(uid=self.uid,
+                    username=self.username,
+                    sex=self.sex,
+                    description=self.description,
+                    online=self.online)
 
 
 class SendToClientPackage(object):
+    #发给用户的数据包
     def __init__(self, action):
         super(SendToClientPackage, self).__init__()
 
@@ -259,7 +246,10 @@ class SendToClientPackage(object):
         self.action = action
 
     def reprJSON(self):
-        return dict(datas=self.obj, action=self.action, status=self.status, errcode=self.errcode)
+        return dict(datas=self.obj,
+                    action=self.action,
+                    status=self.status,
+                    errcode=self.errcode)
 
 ####################################################################################
 #协议解析
@@ -274,17 +264,15 @@ class Protocol(object):
 
         json_msg = json.loads(package)
 
-        protocol = {
-                'login':                       PackageLogin,
-                'getfriendlistbytrainandtime': PackageGetNotFriendsByCodeAndDate,
-                'addfriend':                   PackageAddFriendRequest,
-                'addfriendstatus':             PackageAddFriendStatus,
-                'getfriends':                  PackageGetFriends,
-                'delfriend':                   PackageDeleteFriend,
-                'getfrienddetail':             PackageGetFriendDetail,
-                'sendchatmsg':                 PackageSendChatMessage,
-                'register':                    PackageRegister,
-        }
+        protocol = {'login':                       PackageLogin,
+                    'getfriendlistbytrainandtime': PackageGetNotFriendsByCodeAndDate,
+                    'addfriend':                   PackageAddFriendRequest,
+                    'addfriendstatus':             PackageAddFriendStatus,
+                    'getfriends':                  PackageGetFriends,
+                    'delfriend':                   PackageDeleteFriend,
+                    'getfrienddetail':             PackageGetFriendDetail,
+                    'sendchatmsg':                 PackageSendChatMessage,
+                    'register':                    PackageRegister}
 
         if json_msg.has_key("datas"):
             datas = json_msg['datas']
