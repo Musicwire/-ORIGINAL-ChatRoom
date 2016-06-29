@@ -3,32 +3,36 @@ USERS_PAGES_SIZE = 20
 
 class UserObject(object):
 
-    def __init__(self , connection , dbuser):
+    def __init__(self, connection, dbuser):
         #关键字用用户唯一的用户名
         self.friends = {}
         self.connection = connection
         self.DBUser = dbuser
-
         #是否在线
         self.online = False
 
     def addFriend(self, user):
+        #添加好友
         self.friends[user.DBUser.username] = user
 
     def deleteFriend(self, user):
+        #删除好友
         if self.friends. has_key(user.DBUser.username):
             del self.friends[user.DBUser.username]
 
     def getAllFriends(self):
+        #获取好友列表
         return self.friends.values()
 
     def getFriendWithUsername(self , username):
+        #根据用户名获取好友
         if self.friends.has_key(username):
             return self.friends[username]
         else:
             return None
 
     def getFriendWithId(self, friendId):
+        #根据用户ID获取好友
         for friend in self.friends.itervalues():
             if friend.DBUser.uid == friendId:
                 return friend

@@ -31,31 +31,31 @@ class Logic(object):
     def handlePackage(self, connection , package):
         ##逻辑处理部分##
         if isinstance(package, PackageRegister):
-            self.handleUserRegister(connection , package)
+            self.handleUserRegister(connection, package)
 
         elif isinstance(package, PackageLogin):
-            self.handleUserLogin(connection , package)
+            self.handleUserLogin(connection, package)
 
         elif isinstance(package, PackageGetNotFriendsByCodeAndDate):
-            self.handleGetNotFriendsWithCodeAndDate( connection , package )
+            self.handleGetNotFriendsWithCodeAndDate(connection, package)
 
-        elif isinstance( package , PackageAddFriendRequest ):
-            self.handleAddFriendRequest( connection, package )
+        elif isinstance(package, PackageAddFriendRequest):
+            self.handleAddFriendRequest(connection, package)
 
-        elif isinstance( package , PackageAddFriendStatus ):
-            self.handleAddFriendRequestStatus( connection , package )
+        elif isinstance(package, PackageAddFriendStatus):
+            self.handleAddFriendRequestStatus(connection, package)
 
-        elif isinstance( package , PackageGetFriends ):
-            self.handleGetFriends( connection, package )
+        elif isinstance(package, PackageGetFriends):
+            self.handleGetFriends(connection, package)
 
-        elif isinstance( package , PackageDeleteFriend ):
-            self.handleDeleteFriend( connection , package )
+        elif isinstance(package, PackageDeleteFriend):
+            self.handleDeleteFriend(connection, package)
 
-        elif isinstance( package , PackageGetFriendDetail ):
-            self.handleGetFriendDetail( connection , package )
+        elif isinstance(package, PackageGetFriendDetail):
+            self.handleGetFriendDetail(connection, package)
 
-        elif isinstance( package , PackageSendChatMessage ):
-            self.handleSendChatMessage( connection , package )
+        elif isinstance(package, PackageSendChatMessage):
+            self.handleSendChatMessage(connection, package)
 
     def closeConnection(self, connection):
 
@@ -64,12 +64,12 @@ class Logic(object):
 
         friends = user.getAllFriends()
         if len(friends) > 0:
-            self.broadcastOnlineStatusToAllFriend( user , 0 )
+            self.broadcastOnlineStatusToAllFriend(user, 0)
 
     ####################################################################################
     #逻辑处理
     ####################################################################################
-    def handleUserRegister(self, connection , package):
+    def handleUserRegister(self, connection, package):
         #用户注册处理#
 
         retPackage = SendToClientPackage('register')
@@ -124,7 +124,7 @@ class Logic(object):
                     another = SendToClientPackage('anotherlogin')
                     another.status = 1
 
-                    online_user.connection.send_message(json.dumps(another , cls= ComplexEncoder))
+                    online_user.connection.send_message(json.dumps(another, cls=ComplexEncoder))
 
                     #step 2.关闭联接
                     online_user.connection.close()
@@ -134,44 +134,39 @@ class Logic(object):
                 self.onlineUsers.addNewOnlineUser(user)
 
                 retPackage.status = 1
-                retPackage.obj = SendToClientPackageUser( user.DBUser.uid,
-                                                          user.DBUser.username,
-                                                          user.DBUser.sex,
-                                                          user.DBUser.description)
-
+                retPackage.obj = SendToClientPackageUser(user.DBUser.uid,
+                                                         user.DBUser.username,
+                                                         user.DBUser.sex,
+                                                         user.DBUser.description)
                 #加载好友列表
-                self.getUserFriendsWithDBAndOnLineUsers( user )
+                self.getUserFriendsWithDBAndOnLineUsers(user)
 
                 #检查离线消息，是否有人希望添加我为好友
-                self.getAllAddFriendRequestFromDBAndSendToClient( user )
+                self.getAllAddFriendRequestFromDBAndSendToClient(user)
 
                 #是否有人给我发离线消息
-                self.getOfflineChatMessageAndSendWithUser( user )
+                self.getOfflineChatMessageAndSendWithUser(user)
 
                 #广播好友列表，通知本人上线
-                self.broadcastOnlineStatusToAllFriend( user , 1 )
+                self.broadcastOnlineStatusToAllFriend(user, 1)
 
                 #修改在线列表,本人上线
-                self.setUserOnlineInOnlineUsersFriends( user )
+                self.setUserOnlineInOnlineUsersFriends(user)
 
-        connection.send_message( json.dumps(retPackage, cls=ComplexEncoder) )
-
+        connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
     def handleGetNotFriendsWithCodeAndDate(self, connection, package):
-        """
-        根据code和date获取好友信息
-        """
+        #根据code和date获取好友信息
         user = self.onlineUsers.getUserByConnection(connection)
-
         retPackage = SendToClientPackage('getfriendlistbytrainandtime')
 
         #step 1 检查是否为自己
-        if user.DBUser.uid == int (package.uid):
+        if user.DBUser.uid == int(package.uid):
 
             retPackage.status = 1
 
-            ret_friends = self.getNotFriendsWithCodeAndDateAndPage(user ,
+            ret_friends = self.getNotFriendsWithCodeAndDateAndPage(user,
                                                                    package.traincode,
                                                                    package.date,
                                                                    package.page)
@@ -184,7 +179,7 @@ class Logic(object):
             #用户ID错误
             retPackage.errcode = PACKAGE_ERRCODE_USERID
 
-        connection.send_message( json.dumps(retPackage, cls= ComplexEncoder) )
+        connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
 
