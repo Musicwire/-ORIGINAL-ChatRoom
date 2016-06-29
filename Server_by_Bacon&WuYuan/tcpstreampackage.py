@@ -2,8 +2,8 @@ from protocol import Protocol
 
 class TCPStreamPackage(object):
 
-    def __init__(self , callback):
-        super(TCPStreamPackage , self).__init__()
+    def __init__(self, callback):
+        super(TCPStreamPackage, self).__init__()
 
         self.datas = ''
         self._package_decode_callback = callback
@@ -13,18 +13,18 @@ class TCPStreamPackage(object):
         if len(self.datas) == 0:
             self.datas = data
         else:
-            self.datas = "%s%s" % (self.datas , data)
+            self.datas = "%s%s" % (self.datas, data)
 
         #拆包
         length = -1
         length_index = self.datas.find('length\" :')
         if length_index != -1:
-            length_end = self.datas.find(',' , length_index + 9 , length_index + 9 + 10)
+            length_end = self.datas.find(',', length_index + 9, length_index + 9 + 10)
             if length_end == -1:
-                length_end = self.datas.find('}', length_index + 9 , length_index + 9 + 10)
+                length_end = self.datas.find('}', length_index + 9, length_index + 9 + 10)
 
             if length_end != -1:
-                length = self.datas[length_index + 9 :length_end]
+                length = self.datas[length_index + 9:length_end]
 
         if length != -1:
             length = int(length.strip())
@@ -40,5 +40,3 @@ class TCPStreamPackage(object):
                 self.datas = ''
            else:
                 self.datas = self.datas[length]
-
-
