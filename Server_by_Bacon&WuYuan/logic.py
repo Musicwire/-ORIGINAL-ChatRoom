@@ -357,16 +357,18 @@ class Logic(object):
 
 
     def handleGetFriendDetail(self, connection , package):
-        #获得用户相应信息
+        #获得用户相信信息
 
         user = self.onlineUsers.getUserByConnection(connection)
 
         retPackage = SendToClientPackage('delfriend')
         #自己的id
         if user.DBUser.uid == int(package.uid) and user.DBUser.uid != int(package.fid):
+
             retPackage.status = 1
 
-        #获取用户详细资料返回
+            #获取用户详细资料返回
+
         else:
             retPackage.errcode = PACKAGE_ERRCODE_USERID
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
