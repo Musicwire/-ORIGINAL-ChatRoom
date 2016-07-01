@@ -2,24 +2,24 @@ import json
 import types
 
 #通用错误
-PACKAGE_ERRCODE_USERID = 10001
-PACKAGE_ERRCODE_FRIENDID = 10002
-PACKAGE_ERRCODE_USERFRIENDID = 10003
+PACKAGE_ERRCODE_USERID          = 10001
+PACKAGE_ERRCODE_FRIENDID        = 10002
+PACKAGE_ERRCODE_USERFRIENDID    = 10003
 
 #注册
-PACKAGE_ERRCODE_USERUNEXIST = 10010
-PACKAGE_ERRCODE_USERISEXIST = 10011
-PACKAGE_ERRCODE_INPUTWRONG = 10012
-PACKAGE_ERRCODE_LENGTHTOSHORT = 10013
+PACKAGE_ERRCODE_USERUNEXIST     = 10010
+PACKAGE_ERRCODE_USERISEXIST     = 10011
+PACKAGE_ERRCODE_INPUTWRONG      = 10012
+PACKAGE_ERRCODE_LENGTHTOSHORT   = 10013
 
 
 #登录
-PACKAGE_ERRCODE_USERNOTEXIST = 10021
-PACKAGE_ERRCODE_WRONGPASSWORD = 10022
+PACKAGE_ERRCODE_USERNOTEXIST    = 10021
+PACKAGE_ERRCODE_WRONGPASSWORD   = 10022
 
 #好友
 PACKAGE_ERRCODE_FRIENDSHIPEXIST = 10031
-PACKAGE_ERRCODE_NOTHISUSER = 10032
+PACKAGE_ERRCODE_NOTHISUSER      = 10032
 
 ####################################################################################
 #接收包协议
@@ -29,15 +29,14 @@ class Package(object):
         pass
 
     def parser(self, datas):
-
         for (k, v) in datas.items():
-
             try:
                 if type(self.__getattribute__(k)) is not types.NoneType:
                     self.__setattr__(k, v)
             except AttributeError:
                 pass
 
+####################################################################################
 #注册
 class PackageRegister(Package):
     def __init__(self):
@@ -115,11 +114,9 @@ class PackageSendChatMessage(Package):
         self.fid = 0
         self.chatmsg = ''
 
-
 ####################################################################################
 #发送协议
 ####################################################################################
-
 class ComplexEncoder(json.JSONEncoder):
     def default(self, obj):
         if hasattr(obj, 'reprJSON'):
@@ -128,12 +125,32 @@ class ComplexEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 
+class SendToClientPackage(object):
+    def __init__(self, action):
+        super(SendToClientPackage, self).__init__()
+
+        self.status = 0
+        self.errcode = 0
+
+        self.obj = None
+        self.action = action
+
+    def reprJSON(self):
+        return dict(datas=self.obj,
+                    action=self.action,
+                    status=self.status,
+                    errcode=self.errcode)
+
+####################################################################################
+
 class SendToClientPackageRegister(object):
+    #注册消息返回
     def __init__(self):
         pass
 
 
 class SendToClientPackageUser(object):
+    #登录消息返回
     def __init__(self , uid, username , sex , description , online = False):
 
         self.uid = uid
@@ -150,13 +167,6 @@ class SendToClientPackageUser(object):
             sex=self.sex,
             description=self.description,
             online=self.online)
-
-
-class SendToClientAddFriend(object):
-    #添加好友，状态返回
-    def __init__(self):
-        super(SendToClientAddFriend , self).__init__()
-        pass
 
 
 class SendToClientAddFriendStatusReuest(object):
@@ -206,6 +216,7 @@ class SendToClientPackageRecvAddFriendRequest(object):
 
 
 class SendToClientPackageChatMessage(object):
+    #发送消息
     def __init__(self , fromid = 0, toid = 0, chatmsg = ''):
 
         self.fromid = fromid
@@ -216,6 +227,7 @@ class SendToClientPackageChatMessage(object):
         return dict(fromid = self.fromid , toid = self.toid, chatmsg = self.chatmsg)
 
 class SendToClientPackageOfflineChatMessage(object):
+    #发送离线消息
     def __init__(self , fromid , toid, msg , senddate):
 
         self.fromid = fromid
@@ -232,7 +244,7 @@ class SendToClientPackageOfflineChatMessage(object):
 
 
 class SendToClientUserOnOffStatus(object):
-    #用户上线下线消息
+    #好友上线下线消息
     def __init__(self , uid, username , sex , description , online):
         self.uid = uid
         self.username = username
@@ -247,20 +259,6 @@ class SendToClientUserOnOffStatus(object):
             sex=self.sex,
             description=self.description,
             online=self.online)
-
-
-class SendToClientPackage(object):
-    def __init__(self, action):
-        super(SendToClientPackage, self).__init__()
-
-        self.status = 0
-        self.errcode = 0
-
-        self.obj = None
-        self.action = action
-
-    def reprJSON(self):
-        return dict(datas=self.obj, action=self.action, status=self.status, errcode=self.errcode)
 
 ####################################################################################
 #协议解析

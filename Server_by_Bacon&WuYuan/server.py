@@ -1,6 +1,6 @@
 from tornado.tcpserver import TCPServer
-from tornado.iostream import  StreamClosedError
-from tornado.ioloop  import IOLoop
+from tornado.iostream import StreamClosedError
+from tornado.ioloop import IOLoop
 
 from tcpstreampackage import TCPStreamPackage
 from logic import Logic
@@ -21,17 +21,16 @@ class Connection(object):
 
     ######################################################################
     def read_message(self):
-        self._stream.read_until_close( self.broadcast_message , self.broadcast_streaming_message)
+        self._stream.read_until_close(self.broadcast_message, self.broadcast_streaming_message)
 
     def broadcast_message(self, data):
         pass
 
     def broadcast_streaming_message(self, data):
-        # print data
-        self._stream_package.add( data)
+        #print data
+        self._stream_package.add(data)
 
     def send_message(self, data):
-
         try:
             self._stream.write(data)
         except StreamClosedError as err:
@@ -45,11 +44,9 @@ class Connection(object):
         Connection.logic.closeConnection(self)
 
     ######################################################################
-
-    def onPackageDecode(self , package):
-
-        # print package
-        Connection.logic.handlePackage(self , package)
+    def onPackageDecode(self, package):
+        #print package
+        Connection.logic.handlePackage(self, package)
 
 ######################################################################
 #
@@ -58,7 +55,6 @@ class ChatServer(TCPServer):
     def handle_stream(self, stream, address):
         print("New connection :", address, stream)
         Connection(stream, address)
-
 
 if __name__ == '__main__':
     print("Server start ......")
