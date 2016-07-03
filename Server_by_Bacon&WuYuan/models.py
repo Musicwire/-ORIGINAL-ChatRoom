@@ -17,7 +17,7 @@ class UserObject(object):
 
     def deleteFriend(self, user):
         #删除好友
-        if self.friends. has_key(user.DBUser.username):
+        if user.DBUser.username in self.friends:
             del self.friends[user.DBUser.username]
 
     def getAllFriends(self):
@@ -26,14 +26,14 @@ class UserObject(object):
 
     def getFriendWithUsername(self , username):
         #根据用户名获取好友
-        if self.friends.has_key(username):
+        if username in self.friends:
             return self.friends[username]
         else:
             return None
 
     def getFriendWithId(self, friendId):
         #根据用户ID获取好友
-        for friend in self.friends.itervalues():
+        for friend in self.friends.values():
             if friend.DBUser.uid == friendId:
                 return friend
         return None
@@ -55,32 +55,32 @@ class UserModel(object):
 
     def getUserByConnection(self, connection):
         #根据连接获取用户信息
-        for user in self.users.itervalues():
+        for user in self.users.values():
             if user.connection == connection:
                 return user
         return None
 
     def getUserExistByUserid(self, userid):
         #根据用户id判断用户是否在线,并返回
-        for user in self.users.itervalues():
+        for user in self.users.values():
             if user.DBUser.uid == userid:
                 return user
         return None
 
     def getUserExistByUsername(self, username):
         #根据用户名称判断用户是否在线,并返回，确保用户登录的唯一
-        if self.users.has_key(username):
+        if username in self.users:
             return self.users[username]
         return None
 
     def deleteUserByUser(self, user):
         #根据好友，从用户列表中删除
-        if self.users.has_key(user.DBUser.username):
+        if user.DBUser.username in self.users:
             del self.users[user.DBUser.username]
 
     def deleteUserByConnection(self, connection):
         #根据connection删除好友
-        for user in self.users.itervalues():
+        for user in self.users.values():
             if user.connection == connection:
                 self.deleteUserByUser(user)
                 break

@@ -1,7 +1,7 @@
 import datetime
 import json
 
-from db import DBEngine , DBUser , DBRelationship, DBOfflineMsg, DBTravel, DBTraveluser, DBOfflineAddFriend
+from db import DBEngine , DBUser , DBRelationship, DBOfflineMsg, DBOfflineAddFriend
 from models import UserObject, UserModel, USERS_PAGES_SIZE
 from protocol import PackageLogin, PackageRegister, PackageGetNotFriendsByCodeAndDate, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID, PACKAGE_ERRCODE_USERUNEXIST, ComplexEncoder, SendToClientPackage, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
 
@@ -60,11 +60,11 @@ class Logic(object):
     def closeConnection(self, connection):
 
         user = self.onlineUsers.getUserByConnection(connection)
-        self.onlineUsers.deleteUserByUser(user)
-
-        friends = user.getAllFriends()
-        if len(friends) > 0:
-            self.broadcastOnlineStatusToAllFriend(user, 0)
+        if user:#注册完成之后就断开socket
+            self.onlineUsers.deleteUserByUser(user)
+            friends = user.getAllFriends()
+            if len(friends) > 0:
+                self.broadcastOnlineStatusToAllFriend(user, 0)
 
     ####################################################################################
     #逻辑处理
@@ -80,7 +80,7 @@ class Logic(object):
             retPackage.errcode = PACKAGE_ERRCODE_INPUTWRONG
 
         #step 2，检查参数长度
-        elif len(package.username) < 6 or len(package.password) < 6:
+        elif len(package.username) < 4 or len(package.password) < 6:
             #长度太小#
             retPackage.errcode = PACKAGE_ERRCODE_LENGTHTOSHORT
 
@@ -523,27 +523,6 @@ class Logic(object):
 
             #从数据库中删除
             self.dbEngine.deleteAllOfflineChatMessageWithUserId(user.DBUser.uid)
-
-
-
-    def getNotFriendsWithCodeAndDateAndPage(self, user, traincode, date, page):
-        #根据列车或者航班+日期获取的好友
-
-        friends = self.dbEngine.getNotfriendsWithCodeAndDate(traincode, date)
-        ret_friends = []
-        nCount = 0
-        if friends:
-            for friend in friends:
-                #不是自己
-                if friend.userid != user.DBUser.uid:
-                    #计算页码
-                    if (nCount / 20 == page):
-                        db_friend = self.dbEngine.getUserInfoWithUserId(friend.userid)
-                        ret_friend = SendToClientPackageUser(db_friend.uid, db_friend.username, db_friend.sex, db_friend.description)
-                        ret_friends.append(ret_friend)
-
-                    nCount += 1
-        return ret_friends
 
 
 

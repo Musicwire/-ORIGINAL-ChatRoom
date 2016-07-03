@@ -1,3 +1,4 @@
+import json
 from protocol import Protocol
 
 class TCPStreamPackage(object):

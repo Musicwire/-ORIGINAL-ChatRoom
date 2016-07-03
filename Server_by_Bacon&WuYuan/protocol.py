@@ -31,7 +31,7 @@ class Package(object):
     def parser(self, datas):
         for (k, v) in datas.items():
             try:
-                if type(self.__getattribute__(k)) is not types.NoneType:
+                if type(self.__getattribute__(k)) is not None:
                     self.__setattr__(k, v)
             except AttributeError:
                 pass
@@ -52,16 +52,6 @@ class PackageLogin(Package):
 
         self.username = ''
         self.password = ''
-
-#根据同车次或航班+日期获取好友列表
-class PackageGetNotFriendsByCodeAndDate(Package):
-    def __init__(self):
-        super(PackageGetNotFriendsByCodeAndDate, self).__init__()
-
-        self.uid = 0
-        self.traincode = ''
-        self.date = ''
-        self.page = 0
 
 #申请添加好友
 class PackageAddFriendRequest(Package):
@@ -275,7 +265,6 @@ class Protocol(object):
 
         protocol = {
                 'login':                       PackageLogin,
-                'getfriendlistbytrainandtime': PackageGetNotFriendsByCodeAndDate,
                 'addfriend':                   PackageAddFriendRequest,
                 'addfriendstatus':             PackageAddFriendStatus,
                 'getfriends':                  PackageGetFriends,
@@ -285,10 +274,10 @@ class Protocol(object):
                 'register':                    PackageRegister,
         }
 
-        if json_msg.has_key("datas"):
+        if 'datas' in json_msg:
             datas = json_msg['datas']
 
-            if datas.has_key('type'):
+            if 'type' in datas:
                 stype = datas['type']
 
                 #存在协议内

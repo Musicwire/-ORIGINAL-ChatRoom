@@ -51,41 +51,6 @@ class DBOfflineAddFriend(Base):
         self.lastdate = dateTime
 
 
-
-
-class DBTravel(Base):
-    """
-    列车类型
-    """
-    __tablename__ = 'travel'
-
-    tid         = Column(Integer, primary_key=True)
-    travelCode  = Column(String)
-    date        = Column(Date)
-
-    def __init__(self, tc, date):
-
-        self.tid = tc
-        self.date = date
-
-
-class DBTraveluser(Base):
-    """
-    乘坐列车用户
-    """
-
-    __tablename__ = 'traveluser'
-
-    tid         = Column(Integer, primary_key=True)
-    travelid    = Column(Integer , ForeignKey('travel.tid'))
-    userid      = Column(Integer , ForeignKey('user.uid'))
-
-    def __init__(self , tid, uid):
-
-        self.travelid = tid
-        self.userid = uid
-
-
 class DBRelationship(Base):
     """
     好友关系表
@@ -160,21 +125,6 @@ class DBEngine(object):
     ####################################################################################
     #friends
     ####################################################################################
-    def getNotfriendsWithCodeAndDate(self, code, date):
-        """
-        获取同行好友
-        """
-        try:
-
-            travel = self.session.query(DBTravel).filter(DBTravel.travelCode == code, DBTravel.date == date).first()
-            if travel:
-                return self.session.query(DBTraveluser).filter(DBTraveluser.travelid == travel.tid)
-        except ValueError as err:
-            print(err)
-
-        return None
-
-
 
     def getFriendshipWithUserFriendId(self, userid, friendid):
         """
