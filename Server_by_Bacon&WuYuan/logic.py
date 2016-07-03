@@ -3,7 +3,7 @@ import json
 
 from db import DBEngine , DBUser , DBRelationship, DBOfflineMsg, DBOfflineAddFriend
 from models import UserObject, UserModel, USERS_PAGES_SIZE
-from protocol import PackageLogin, PackageRegister, PackageGetNotFriendsByCodeAndDate, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID, PACKAGE_ERRCODE_USERUNEXIST, ComplexEncoder, SendToClientPackage, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
+from protocol import PackageLogin, PackageRegister,  PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID, PACKAGE_ERRCODE_USERUNEXIST, ComplexEncoder, SendToClientPackage, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
 
 class Logic(object):
 
@@ -35,9 +35,6 @@ class Logic(object):
 
         elif isinstance(package, PackageLogin):
             self.handleUserLogin(connection, package)
-
-        elif isinstance(package, PackageGetNotFriendsByCodeAndDate):
-            self.handleGetNotFriendsWithCodeAndDate(connection, package)
 
         elif isinstance(package, PackageAddFriendRequest):
             self.handleAddFriendRequest(connection, package)
