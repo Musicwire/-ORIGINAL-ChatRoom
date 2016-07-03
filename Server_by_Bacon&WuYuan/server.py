@@ -61,5 +61,5 @@ class ChatServer(TCPServer):
 if __name__ == '__main__':
     print("Server start ......")
     server = ChatServer()
-    server.listen(6000)
+    server.listen(9001)
     IOLoop.instance().start()
