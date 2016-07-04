@@ -140,7 +140,7 @@ class SendToClientPackageRegister(object):
 
 
 class SendToClientPackageUser(object):
-    #登录消息返回
+    #登录情况和好友列表返回
     def __init__(self , uid, username , sex , description , online = False):
 
         self.uid = uid

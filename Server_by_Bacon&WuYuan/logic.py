@@ -153,30 +153,6 @@ class Logic(object):
         connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    def handleGetNotFriendsWithCodeAndDate(self, connection, package):
-        #根据code和date获取好友信息
-        user = self.onlineUsers.getUserByConnection(connection)
-        retPackage = SendToClientPackage('getfriendlistbytrainandtime')
-
-        #step 1 检查是否为自己
-        if user.DBUser.uid == int(package.uid):
-
-            retPackage.status = 1
-
-            ret_friends = self.getNotFriendsWithCodeAndDateAndPage(user,
-                                                                   package.traincode,
-                                                                   package.date,
-                                                                   package.page)
-            if ret_friends and len(ret_friends) > 0:
-                retPackage.obj = ret_friends
-
-        else:
-            #用户ID错误
-            retPackage.errcode = PACKAGE_ERRCODE_USERID
-
-        connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
-
-
     def handleAddFriendRequest(self, connection , package):
         #有人想添加好友
 
@@ -358,10 +334,9 @@ class Logic(object):
 
         user = self.onlineUsers.getUserByConnection(connection)
 
-        retPackage = SendToClientPackage('delfriend')
+        retPackage = SendToClientPackage('getfrienddetail')
         #自己的id
         if user.DBUser.uid == int(package.uid) and user.DBUser.uid != int(package.fid):
-
             retPackage.status = 1
 
             #获取用户详细资料返回
