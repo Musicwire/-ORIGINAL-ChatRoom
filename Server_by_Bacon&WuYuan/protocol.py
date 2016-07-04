@@ -16,6 +16,7 @@ PACKAGE_ERRCODE_LENGTHTOSHORT   = 10013
 #登录
 PACKAGE_ERRCODE_USERNOTEXIST    = 10021
 PACKAGE_ERRCODE_WRONGPASSWORD   = 10022
+PACKAGE_ERRCODE_ANOTHERLOGIN    = 10023
 
 #好友
 PACKAGE_ERRCODE_FRIENDSHIPEXIST = 10031
@@ -58,8 +59,8 @@ class PackageAddFriendRequest(Package):
     def __init__(self):
         super(PackageAddFriendRequest, self).__init__()
 
-        self.uid = 0
-        self.fid = 0
+        self.username = ''
+        self.friendname = ''
         self.msg = ''
 
 #同意或者拒绝添加好友申请
@@ -67,16 +68,26 @@ class PackageAddFriendStatus(Package):
     def __init__(self):
         super(PackageAddFriendStatus, self).__init__()
 
-        self.uid = 0
-        self.fid = 1
+        self.username=''
+        self.friendname=''
+        self.msg=''
         self.agree = 0
 
-#获取我的好友
+#发送聊天信息
+class PackageSendChatMessage(Package):
+    def __init__(self):
+        super(PackageSendChatMessage, self).__init__()
+
+        self.username = 0
+        self.friendname = 0
+        self.chatmsg = ''
+
+#获取好友列表
 class PackageGetFriends(Package):
     def __init__(self):
         super(PackageGetFriends, self).__init__()
 
-        self.uid = 0
+        self.username = 0
         self.page = 0
 
 #删除好友
@@ -84,25 +95,16 @@ class PackageDeleteFriend(Package):
     def __init__(self):
         super(PackageDeleteFriend, self).__init__()
 
-        self.uid = 0
-        self.fid = 0
+        self.username = 0
+        self.friendname = 0
 
-
+#获取好友信息
 class PackageGetFriendDetail(Package):
     def __init__(self):
         super(PackageGetFriendDetail, self).__init__()
 
-        self.uid = 0
-        self.fid = 0
-
-
-class PackageSendChatMessage(Package):
-    def __init__(self):
-        super(PackageSendChatMessage, self).__init__()
-
-        self.uid = 0
-        self.fid = 0
-        self.chatmsg = ''
+        self.username = 0
+        self.friendname = 0
 
 ####################################################################################
 #发送协议
@@ -141,113 +143,97 @@ class SendToClientPackageRegister(object):
 
 class SendToClientPackageUser(object):
     #登录情况和好友列表返回
-    def __init__(self , uid, username , sex , description , online = False):
+    def __init__(self, username, sex, online=False):
 
-        self.uid = uid
         self.username = username
         self.sex = sex
-        self.description = description
         self.online = online
 
     def reprJSON(self):
 
         return dict(
-            uid=self.uid,
             username=self.username,
             sex=self.sex,
-            description=self.description,
             online=self.online)
 
 
-class SendToClientAddFriendStatusReuest(object):
-    #添加好友状态返回
-    def __init__(self , fromid, toid, username , sex, description, agree):
-
-        self.fromid = fromid
-        self.toid = toid
-        self.username = username
-        self.sex = sex
-        self.description = description
-        self.agree = agree
-
-    def reprJSON(self):
-        return dict(
-            fromid=self.fromid,
-            toid=self.toid,
-            username=self.username,
-            sex=self.sex,
-            description=self.description,
-            agree=self.agree)
-
-
 class SendToClientPackageRecvAddFriendRequest(object):
-    #发送有人申请添加消息
-    def __init__(self, fromid, username, toid, sex , description, msg, date):
+    #转发好友申请
+    def __init__(self, fromname, toname, sex, msg, date):
 
-        self.fromid = fromid
-        self.toid = toid
-
-        self.username = username
+        self.fromname = fromname
+        self.toname = toname
         self.sex = sex
-        self.description = description
-
         self.msg = msg
         self.senddate = date
 
     def reprJSON(self):
         return dict(
-            fromid=self.fromid,
-            toid=self.toid,
-            username=self.username,
+            fromname=self.fromname,
+            toname=self.toname,
             sex=self.sex,
-            description=self.description,
             msg=self.msg,
             senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
 
+class SendToClientAddFriendStatus(object):
+    #返回添加好友结果
+    def __init__(self, username, toname, sex, msg, agree):
+
+        self.fromname = username
+        self.toname = toname
+        self.sex = sex
+        self.msg = msg
+        self.agree = agree
+
+    def reprJSON(self):
+        return dict(
+            fromname=self.fromname,
+            toname=self.toname,
+            sex=self.sex,
+            msg=self.msg,
+            agree=self.agree)
+
+
 class SendToClientPackageChatMessage(object):
     #发送消息
-    def __init__(self , fromid = 0, toid = 0, chatmsg = ''):
+    def __init__(self, fromname='', toname='', chatmsg=''):
 
-        self.fromid = fromid
-        self.toid = toid
+        self.fromname = fromname
+        self.toname = toname
         self.chatmsg = chatmsg
 
     def reprJSON(self):
-        return dict(fromid = self.fromid , toid = self.toid, chatmsg = self.chatmsg)
+        return dict(fromname=self.fromname,
+                    toname=self.toname,
+                    chatmsg=self.chatmsg)
 
 class SendToClientPackageOfflineChatMessage(object):
     #发送离线消息
-    def __init__(self , fromid , toid, msg , senddate):
+    def __init__(self, fromname, toname, msg, senddate):
 
-        self.fromid = fromid
-        self.toid = toid
+        self.fromname = fromname
+        self.toname = toname
         self.chatmsg = msg
         self.senddate = senddate
 
     def reprJSON(self):
         return dict(
-            fromid=self.fromid,
-            toid=self.toid,
+            fromname=self.fromname,
+            toname=self.toname,
             chatmsg=self.chatmsg,
             senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
 
 class SendToClientUserOnOffStatus(object):
     #好友上线下线消息
-    def __init__(self , uid, username , sex , description , online):
-        self.uid = uid
+    def __init__(self, username, online):
         self.username = username
-        self.sex = sex
-        self.description = description
         self.online = online
 
     def reprJSON(self):
         return dict(
-            uid=self.uid,
             username=self.username,
-            sex=self.sex,
-            description=self.description,
             online=self.online)
 
 ####################################################################################

@@ -3,7 +3,7 @@ import json
 
 from db import DBEngine , DBUser , DBRelationship, DBOfflineMsg, DBOfflineAddFriend
 from models import UserObject, UserModel, USERS_PAGES_SIZE
-from protocol import PackageLogin, PackageRegister,  PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER , PACKAGE_ERRCODE_USERID, PACKAGE_ERRCODE_USERUNEXIST, ComplexEncoder, SendToClientPackage, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriendStatusReuest, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
+from protocol import PackageLogin, PackageRegister,  PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST , PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_NOTHISUSER, PACKAGE_ERRCODE_ANOTHERLOGIN, PACKAGE_ERRCODE_USERID, PACKAGE_ERRCODE_USERUNEXIST, ComplexEncoder, SendToClientPackage, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriendStatus, SendToClientPackageOfflineChatMessage, SendToClientUserOnOffStatus
 
 class Logic(object):
 
@@ -66,8 +66,10 @@ class Logic(object):
     ####################################################################################
     #逻辑处理
     ####################################################################################
+
+
+    #----用户注册处理----#
     def handleUserRegister(self, connection, package):
-        #用户注册处理#
 
         retPackage = SendToClientPackage('register')
 
@@ -97,8 +99,9 @@ class Logic(object):
         connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
+    #----用户登录处理----#
     def handleUserLogin(self, connection , package):
-        #用户登录处理
+
         retPackage = SendToClientPackage('login')
 
         #step 1，检查参数合法性
@@ -119,7 +122,7 @@ class Logic(object):
                 if online_user:
                     #step 1.发送异地登录消息
                     another = SendToClientPackage('anotherlogin')
-                    another.status = 1
+                    another.errcode = PACKAGE_ERRCODE_ANOTHERLOGIN
 
                     online_user.connection.send_message(json.dumps(another, cls=ComplexEncoder))
 
@@ -131,10 +134,8 @@ class Logic(object):
                 self.onlineUsers.addNewOnlineUser(user)
 
                 retPackage.status = 1
-                retPackage.obj = SendToClientPackageUser(user.DBUser.uid,
-                                                         user.DBUser.username,
-                                                         user.DBUser.sex,
-                                                         user.DBUser.description)
+                retPackage.obj = SendToClientPackageUser(user.DBUser.username,
+                                                         user.DBUser.sex)
                 #加载好友列表
                 self.getUserFriendsWithDBAndOnLineUsers(user)
 
@@ -153,48 +154,44 @@ class Logic(object):
         connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    def handleAddFriendRequest(self, connection , package):
-        #有人想添加好友
+    #----转发好友申请----#
+    def handleAddFriendRequest(self, connection, package):
 
         user = self.onlineUsers.getUserByConnection(connection)
-
         retPackage = SendToClientPackage('addfriend')
-
         bFriendship = False
-        #检查是否是自己
-        #并且不是自己想要添加自己为好友
-        if user.DBUser.uid == int(package.uid) and user.DBUser.uid != package.fid:
 
-            friend = user.getFriendWithId(package.fid)
+        #检查是否是自己并且不是自己想要添加自己为好友
+        if user.DBUser.username == int(package.username) and user.DBUser.username != package.friendname:
+            friend = user.getFriendWithName(package.fiendname)
+
             if friend:
                 bFriendship = True
 
             if not bFriendship:
                 retPackage.status = 1
-                user.connection.send_message(json.dumps(retPackage, cls= ComplexEncoder))
+                user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
                 #step2 在线,发送添加
-                online_user = self.onlineUsers.getUserExistByUserid(package.fid)
+                online_user = self.onlineUsers.getUserExistByUsername(package.friendname)
 
                 if online_user:
-
-                    addreq = SendToClientPackageRecvAddFriendRequest(package.uid,
-                                                                     package.fid,
-                                                                     user.DBUser.username,
+                    addreq = SendToClientPackageRecvAddFriendRequest(package.username,
+                                                                     package.friendname,
                                                                      user.DBUser.sex,
-                                                                     user.DBUser.description,
+                                                                     package.msg,
                                                                      package.msg, datetime.datetime.now())
                     retPackage.obj = addreq
 
                     online_user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
                 else:
                     #插入数据库,等待上线时候通知
-                    self.dbEngine.setOfflineAddFriendReuqest(package.uid, package.fid, package.msg, datetime.datetime.now())
+                    self.dbEngine.setOfflineAddFriendReuqest(package.username, package.friendname, package.msg, datetime.datetime.now())
 
             else:
                 #已经是好友，返回错误信息
                 retPackage.errcode = PACKAGE_ERRCODE_FRIENDSHIPEXIST
-                user.connection.send_message(json.dumps(retPackage, cls= ComplexEncoder))
+                user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
         else:
             #用户ID错误，或者用户ID等于好友ID
@@ -202,40 +199,38 @@ class Logic(object):
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    def handleAddFriendRequestStatus(self, connection ,package):
-        #应答是否同意添加好友请求
+    #---应答是否同意添加好友请求---#
+    def handleAddFriendRequestStatus(self, connection, package):
 
         user = self.onlineUsers.getUserByConnection(connection)
-
         retPackage = SendToClientPackage('addfriendstatus')
+
         #自己的id
-        if user.DBUser.uid == int(package.uid) and user.DBUser.uid != int(package.fid):
+        if user.DBUser.username == int(package.username) and user.DBUser.username != int(package.friendname):
 
             #如果同意
             if package.agree:
+
                 #step 1. 检查是否是自己的好友
-
-                if not self.dbEngine.getFriendshipWithUserFriendId(package.uid, package.fid):
-
-                    db_friend = self.dbEngine.getUserInfoWithUserId(package.fid)
+                if not self.dbEngine.getFriendshipWithUserFriendName(package.username, package.friendname):
+                    db_friend = self.dbEngine.getUserInfoWithUserName(package.friendname)
 
                     #存在数据库中
                     if db_friend:
                         retPackage.status = 1
                         #保存关系到数据库
-                        self.dbEngine.setFriendshipWithUserIds(package.uid, package.fid)
+                        self.dbEngine.setFriendshipWithUserNames(package.username, package.friendname)
 
                         user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
                         #检查是否在线,在线发送上线通知
-                        online_friend = self.onlineUsers.getUserExistByUserid(package.fid)
+                        online_friend = self.onlineUsers.getUserExistByUsername(package.friendname)
 
                         if online_friend:
                             #当前在线
-                            online_status = SendToClientAddFriendStatusReuest(package.uid,
-                                                                              package.fid,
-                                                                              user.DBUser.username,
+                            online_status = SendToClientAddFriendStatus(package.username,
+                                                                              package.friendname,
                                                                               user.DBUser.sex,
-                                                                              user.DBUser.description,
+                                                                              package.msg,
                                                                               package.agree)
                             retPackage.obj = online_status
                             #发送有人添加好友申请
@@ -268,16 +263,49 @@ class Logic(object):
         else:
             #用户ID异常
             retPackage.errcode = PACKAGE_ERRCODE_USERFRIENDID
-            user.connection.send_message( json.dumps(retPackage, cls=ComplexEncoder))
+            user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-
-    def handleGetFriends(self, connection, package ):
-        #获取好友列表
+    # ---发送聊天消息---#
+    def handleSendChatMessage(self, connection, package):
 
         user = self.onlineUsers.getUserByConnection(connection)
+        retPackage = SendToClientPackage('sendchatmsg')
 
+        # 自己的id
+        if user.DBUser.username == int(package.username) and user.DBUser.username != int(package.friendname):
+
+            # 寻找好友ID
+            for friend in user.getAllFriends():
+
+                if friend.DBUser.username == int(package.friendname):
+                    # 发送消息给好友
+                    retPackage.status = 1
+
+                    user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
+
+                    chat = SendToClientPackageChatMessage(user.DBUser.username, package.friendname, package.chatmsg)
+                    retPackage.obj = chat
+                    if friend.connection:
+                        friend.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
+                    else:
+                        # 当前不在线，数据库插入离线消息
+                        self.dbEngine.addOfflineChatMessageWithUserName(user.DBUser.username,
+                                                                        package.friendname,
+                                                                        package.chatmsg,
+                                                                        datetime.datetime.now())
+                    return
+        else:
+            retPackage.errcode = PACKAGE_ERRCODE_USERID
+            user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
+
+
+    #---获取好友列表---#
+    def handleGetFriends(self, connection, package):
+
+        user = self.onlineUsers.getUserByConnection(connection)
         retPackage = SendToClientPackage('getfriends')
+
         #自己的id
         if user.DBUser.uid == int(package.uid):
 
@@ -294,49 +322,44 @@ class Logic(object):
         user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
+    #---删除好友---#
     def handleDeleteFriend(self, connection, package):
-        #删除好友
 
         user = self.onlineUsers.getUserByConnection(connection)
-
         retPackage = SendToClientPackage('delfriend')
-        #自己的id
-        if user.DBUser.uid == int(package.uid) and user.DBUser.uid != int(package.fid):
 
+        #自己的id
+        if user.DBUser.username == int(package.username) and user.DBUser.username != int(package.friend):
             retPackage.status = 1
+
             #从数据库中删除
-            self.dbEngine.deleteFriendshipByUserAndFriendId(package.uid, package.fid)
+            self.dbEngine.deleteFriendshipByUserAndFriendId(package.username, package.friend)
 
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
             #给在线好友发送通知，删除
-            online_friend = self.onlineUsers.getUserExistByUserid(package.fid)
+            online_friend = self.onlineUsers.getUserExistByUsername(package.friend)
             if online_friend:
-                sendObj = SendToClientPackageUser(user.DBUser.uid,
-                                                  user.DBUser.username,
-                                                  user.DBUser.sex,
-                                                  user.DBUser.description)
+                sendObj = SendToClientPackageUser(user.DBUser.username,
+                                                  user.DBUser.sex,)
                 retPackage.obj = sendObj
                 online_friend.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
                 #从维护的好友列表中删除
                 user.deleteFriend(online_friend)
-
-
         else:
             retPackage.errcode = PACKAGE_ERRCODE_USERID
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-
-    def handleGetFriendDetail(self, connection , package):
-        #获得用户相信信息
+    #---获得好友信息---#
+    def handleGetFriendDetail(self, connection, package):
 
         user = self.onlineUsers.getUserByConnection(connection)
-
         retPackage = SendToClientPackage('getfrienddetail')
+
         #自己的id
-        if user.DBUser.uid == int(package.uid) and user.DBUser.uid != int(package.fid):
+        if user.DBUser.username == int(package.username) and user.DBUser.username != int(package.friendname):
             retPackage.status = 1
 
             #获取用户详细资料返回
@@ -345,45 +368,41 @@ class Logic(object):
             retPackage.errcode = PACKAGE_ERRCODE_USERID
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
-
-    def handleSendChatMessage(self, connection , package):
-        #发送聊天消息
-
-        user = self.onlineUsers.getUserByConnection(connection)
-
-        retPackage = SendToClientPackage('sendchatmsg')
-        #自己的id
-        if user.DBUser.uid == int(package.uid) and user.DBUser.uid != int(package.fid):
-
-            #寻找好友ID
-            for friend in user.getAllFriends():
-                if friend.DBUser.uid == int(package.fid):
-                    #发送消息给好友
-                    retPackage.status = 1
-
-                    user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
-
-                    chat = SendToClientPackageChatMessage(user.DBUser.uid, package.fid, package.chatmsg)
-                    retPackage.obj = chat
-                    if friend.connection:
-                        friend.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
-                    else:
-                        #当前不在线，数据库插入离线消息
-                        self.dbEngine.addOfflineChatMessageWithUserId(user.DBUser.uid,
-                                                                      package.fid,
-                                                                      package.chatmsg,
-                                                                      datetime.datetime.now())
-                    return
-        else:
-            retPackage.errcode = PACKAGE_ERRCODE_USERID
-            user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
-
-
-
     ####################################################################################
     #逻辑中的部分细节处理
     ####################################################################################
 
+
+    #---获取用户好友列表---#
+    def getUserFriendsWithUserAndPage(self, user, page):
+
+        retFriends = []
+        friends = user.getAllFriends()
+        friendCount = len(friends)
+        if friends and friendCount > 0:
+            nStart = 0
+            nEnd = 0
+
+            #计算页码是否在范围内
+            if USERS_PAGES_SIZE * page < friendCount:
+
+                #计算结束页码
+                if USERS_PAGES_SIZE * (page + 1) > friendCount:
+                    nEnd = friendCount - USERS_PAGES_SIZE * page
+                else:
+                    nEnd = USERS_PAGES_SIZE * page
+
+                #在页码范围内的好友
+                friends = friends[nStart * USERS_PAGES_SIZE : nEnd]
+                for friend in friends:
+                    online = False
+                    if friend.connection:
+                        online = True
+                    retUser = SendToClientPackageUser(friend.DBUser.username,
+                                                      friend.DBUser.sex,
+                                                      online)
+                    retFriends.append(retUser)
+        return retFriends
     def getUserFriendsWithDBAndOnLineUsers(self, user):
         #获取用户的所有好友信息
 
@@ -416,11 +435,8 @@ class Logic(object):
         for friend in user.getAllFriends():
             #通知所有好友下线
             retPackage.status = 1
-            obj = SendToClientUserOnOffStatus(user.DBUser.uid,
-                                                  user.DBUser.username,
-                                                  user.DBUser.sex,
-                                                  user.DBUser.description,
-                                                  online)
+            obj = SendToClientUserOnOffStatus(user.DBUser.username,
+                                              online)
             retPackage.obj = obj
 
             if friend.connection:
@@ -495,38 +511,3 @@ class Logic(object):
 
             #从数据库中删除
             self.dbEngine.deleteAllOfflineChatMessageWithUserId(user.DBUser.uid)
-
-
-
-    def getUserFriendsWithUserAndPage(self, user, page):
-        #获取用户好友
-
-        retFriends = []
-        friends = user.getAllFriends()
-        friendCount = len(friends)
-        if friends and friendCount > 0:
-            nStart = 0
-            nEnd = 0
-
-            #计算页码是否在范围内
-            if USERS_PAGES_SIZE * page < friendCount:
-
-                #计算结束页码
-                if USERS_PAGES_SIZE * (page + 1) > friendCount:
-                    nEnd = friendCount - USERS_PAGES_SIZE * page
-                else:
-                    nEnd = USERS_PAGES_SIZE * page
-
-                #在页码范围内的好友
-                friends = friends[nStart * USERS_PAGES_SIZE : nEnd]
-                for friend in friends:
-                    online = False
-                    if friend.connection:
-                        online = True
-                    retUser = SendToClientPackageUser(friend.DBUser.uid,
-                                                      friend.DBUser.username,
-                                                      friend.DBUser.sex,
-                                                      friend.DBUser.description,
-                                                      online)
-                    retFriends.append(retUser)
-        return retFriends

@@ -11,22 +11,39 @@ class DBUser(Base):
     """
     __tablename__ = 'user'
 
-    uid         = Column(Integer , primary_key=True)
+    uid         = Column(Integer, primary_key = True)
     username    = Column(String)
     password    = Column(String)
-    sex         = Column(Integer, default=0)
-    description = Column(String)
+    mail		= Column(String)
+    sex         = Column(Integer, default = 0)
+    authsuccess = Column(Integer, default = 0)
 
-    def __init__(self , username , password, sex = 0):
+    def __init__(self, username, password, mail, sex = 0, authsuccess = 0):
 
         self.username = username
         self.password = password
+        self.mail = mail
         self.sex = sex
+        self.authsuccess = authsuccess
 
 
     def __repr__(self):
         return "<user ('%s')>" % (self.username)
 
+class DBMail(Base):
+	"""
+	邮箱表
+	"""
+	__tablename__ = 'mailauth'
+
+	mid          = Column(Integer, primary_key = True)
+	mail         = Column(String)
+	authword     = Column(String)
+
+	def __init__(self, mail, authword):
+		
+		self.mail = mail
+		self.authword = authword
 
 class DBOfflineAddFriend(Base):
     """
@@ -114,22 +131,25 @@ class DBEngine(object):
         return self.session.query(DBUser).filter(DBUser.username == username, DBUser.password == password).first()
 
 
-    def register_new_user(self, username , password , sex = 0):
+    def register_new_user(self, username, password, mail, sex = 0,authsuccess = 0):
 
-        user = DBUser(username = username, password = password , sex = sex)
+        user = DBUser(username = username, password = password, mail = mail, sex = sex, authsuccess =authsuccess)
         self.session.add(user)
         self.session.commit()
-
+    def  findIdWithName(self, username):
+    	return self.session.query(DBUser).filter(DBUser.username == username).first()
 
 
     ####################################################################################
     #friends
     ####################################################################################
 
-    def getFriendshipWithUserFriendId(self, userid, friendid):
+    def getFriendshipWithUserFriendName(self, uname, fname):
         """
         是否已经存在好友关系
         """
+        userid = findIdWithName(uname)
+        friendid = findIdWithName(fname)
         friendship = self.session.query(DBRelationship).filter(DBRelationship.user1id == userid, DBRelationship.user2id == friendid).first()
         if friendship:
             return friendship
@@ -139,26 +159,29 @@ class DBEngine(object):
 
 
 
-    def setFriendshipWithUserIds(self, userid, friendid):
+    def setFriendshipWithUserNames(self, uname, fname):
         """
         保存好友关系
         """
-        relationship = DBRelationship(userid , friendid)
+        userid = findIdWithName(uname)
+        friendid = findIdWithName(fname)
+        relationship = DBRelationship(userid, friendid)
         self.session.add(relationship)
         self.session.commit()
 
 
-    def getUserInfoWithUserId(self, userid):
+    def getUserInfoWithUserName(self, uname):
         """
-        根据用户id，获取用户资料
+        根据用户name，获取用户资料
         """
-        return self.session.query(DBUser).filter(DBUser.uid == userid).first()
+        return self.session.query(DBUser).filter(DBUser.username == uname).first()
 
 
-    def getUserFriendshipWithUserId(self , userId):
+    def getUserFriendshipWithUserName(self, uname):
         """
-        根据用户ID，获取用户好友
+        根据用户name，获取用户好友
         """
+        userId = findIdWithName(uname)
         user1Friend = self.session.query(DBRelationship).filter(DBRelationship.user1id == userId)
         user2Friend = self.session.query(DBRelationship).filter(DBRelationship.user2id == userId)
 
@@ -166,17 +189,19 @@ class DBEngine(object):
 
 
 
-    def getOfflineAddFriendRequests(self , userid):
+    def getOfflineAddFriendRequests(self , uname):
         """
-        根据用户ID，获取所有离线申请添加好友的信息
+        根据用户name，获取所有离线申请添加好友的信息
         """
+        userid = findIdWithName(uname)
         return self.session.query(DBOfflineAddFriend).filter(DBOfflineAddFriend.toid == userid)
 
 
-    def deleteOfflineAddFriendRequestWithUserId(self , userId):
+    def deleteOfflineAddFriendRequestWithUserName(self, uname):
         """
-        根据用户ID，删除离线好友请求
+        根据用户name，删除离线好友请求
         """
+        userId = findIdWithName(uname)
         offlineAddRequests = self.session.query(DBOfflineAddFriend).filter(DBOfflineAddFriend.toid == userId)
         for offlineAddReq in offlineAddRequests:
             self.session.delete(offlineAddReq)
@@ -184,10 +209,12 @@ class DBEngine(object):
         self.session.commit()
 
 
-    def setOfflineAddFriendReuqest(self , fid, uid, msg, dateTime):
+    def setOfflineAddFriendReuqest(self, fname, uname, msg, dateTime):
         """
         保存添加请求，当前好友为离线状态
         """
+        fid = findIdWithName(fname)
+        uid = findIdWithName(uname)
         offline_add_request = self.session.query(DBOfflineAddFriend).filter(DBOfflineAddFriend.toid == fid, DBOfflineAddFriend.fromid == uid).first()
         if offline_add_request:
             self.session.query(DBOfflineAddFriend).filter(DBOfflineAddFriend.toid == fid, DBOfflineAddFriend.fromid == uid).update({'msg':msg, 'lastdate':dateTime})
@@ -198,10 +225,12 @@ class DBEngine(object):
         self.session.commit()
 
 
-    def deleteFriendshipByUserAndFriendId(self , userId, friendId):
+    def deleteFriendshipByUserAndFriendName(self , uname, fname):
         """
-        根据用户ID和好友ID删除好友关系
+        根据用户name和好友name删除好友关系
         """
+        userID = findIdWithName(uname)
+        friendId = findIdWithName(fname)
         user1Friend = self.session.query(DBRelationship).filter(DBRelationship.user1id == userId ,DBRelationship.user2id == friendId).first()
         if not user1Friend:
             user1Friend = self.session.query(DBRelationship).filter(DBRelationship.user1id == friendId ,DBRelationship.user2id == userId).first()
@@ -214,17 +243,19 @@ class DBEngine(object):
     #chat
     ####################################################################################
 
-    def getAllOfflineChatMessageWithUserId(self, userId):
+    def getAllOfflineChatMessageWithUserName(self, uname):
         """
-        根据用户ID，获取所有离线消息
+        根据用户name，获取所有离线消息
         """
+        userId = findIdWithName(uname)
         return self.session.query(DBOfflineMsg).filter(DBOfflineMsg.touserid  == userId)
 
 
-    def deleteAllOfflineChatMessageWithUserId(self , userId):
+    def deleteAllOfflineChatMessageWithUserName(self, uname):
         """
-        根据用户ID，删除所有离线消息
+        根据用户name，删除所有离线消息
         """
+        userId = findIdWithName(uname)
         offlineChatMessage = self.session.query(DBOfflineMsg).filter(DBOfflineMsg.touserid == userId)
         for offlineChatMsg in offlineChatMessage:
             self.session.delete(offlineChatMsg)
@@ -232,10 +263,22 @@ class DBEngine(object):
         self.session.commit()
 
 
-    def addOfflineChatMessageWithUserId(self, userId, friendId, message, lastdate):
+    def addOfflineChatMessageWithUserName(self, uname, fname, message, lastdate):
         """
         保存离线聊天消息
         """
+        userId = findIdWithName(uname)
+        friendId = findIdWithName(fname)
         offChatMsg = DBOfflineMsg(userId, friendId, message, lastdate)
         self.session.add(offChatMsg)
         self.session.commit()
+
+if __name__ == '__main__':
+	my_db = DBEngine()
+	Base.metadata.create_all(my_db.engine)
+	#my_db.register_new_user("wuyuan","pearlismylove",0)
+	#tem = my_db.isUserExist("wuyuan","pearlismylove")
+	##print (tem)
+	#print (tem.description)
+	#tem2 = A("wuyuan",120)
+	#print (tem2.name)
