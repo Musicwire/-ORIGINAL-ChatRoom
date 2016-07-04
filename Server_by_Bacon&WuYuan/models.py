@@ -1,4 +1,3 @@
-from db import DBEngine , DBUser
 USERS_PAGES_SIZE = 20
 
 class UserObject(object):

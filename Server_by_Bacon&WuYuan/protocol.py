@@ -2,29 +2,68 @@ import json
 import types
 
 #通用错误
-PACKAGE_ERRCODE_USERID          = 10001
-PACKAGE_ERRCODE_FRIENDID        = 10002
-PACKAGE_ERRCODE_USERFRIENDID    = 10003
+PACKAGE_ERRCODE_USERID          = 10001 #用户ID错误
+PACKAGE_ERRCODE_FRIENDID        = 10002 #好友ID错误,此用户不是你好友
+PACKAGE_ERRCODE_USERFRIENDID    = 10003 #用户或者好友ID错误,ID非自己ID，或者好友ID与自己ID相同
 
 #注册
-PACKAGE_ERRCODE_USERUNEXIST     = 10010
-PACKAGE_ERRCODE_USERISEXIST     = 10011
-PACKAGE_ERRCODE_INPUTWRONG      = 10012
-PACKAGE_ERRCODE_LENGTHTOSHORT   = 10013
-
+PACKAGE_ERRCODE_USERUNEXIST     = 10010 #账号不存在
+PACKAGE_ERRCODE_USERISEXIST     = 10011 #帐号存在
+PACKAGE_ERRCODE_INPUTWRONG      = 10012 #输入异常
+PACKAGE_ERRCODE_LENGTHTOSHORT   = 10013 #帐号或密码长度不足
 
 #登录
-PACKAGE_ERRCODE_USERNOTEXIST    = 10021
-PACKAGE_ERRCODE_WRONGPASSWORD   = 10022
-PACKAGE_ERRCODE_ANOTHERLOGIN    = 10023
+PACKAGE_ERRCODE_USERNOTEXIST    = 10021 #帐号不存在
+PACKAGE_ERRCODE_WRONGPASSWORD   = 10022 #密码错误
+PACKAGE_ERRCODE_ANOTHERLOGIN    = 10023 #异地登录，退出当前帐号
 
 #好友
-PACKAGE_ERRCODE_FRIENDSHIPEXIST = 10031
-PACKAGE_ERRCODE_NOTHISUSER      = 10032
+PACKAGE_ERRCODE_FRIENDSHIPEXIST = 10031 #已经是好友
+PACKAGE_ERRCODE_NOTHISUSER      = 10032 #不存在此用户
 
 ####################################################################################
-#接收包协议
+# 一.协议解析
 ####################################################################################
+class Protocol(object):
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def checkPackage(package):
+
+        json_msg = json.loads(package)
+
+        protocol = {
+                'login':                       PackageLogin,
+                'addfriend':                   PackageAddFriendRequest,
+                'addfriendstatus':             PackageAddFriendStatus,
+                'getfriends':                  PackageGetFriends,
+                'delfriend':                   PackageDeleteFriend,
+                'getfrienddetail':             PackageGetFriendDetail,
+                'sendchatmsg':                 PackageSendChatMessage,
+                'register':                    PackageRegister,
+        }
+
+        if 'datas' in json_msg:
+            datas = json_msg['datas']
+
+            if 'type' in datas:
+                stype = datas['type']
+
+                #存在协议内
+                if stype in protocol.keys():
+                    #解析协议
+                    pack = protocol[stype]()
+                    pack.parser(datas)
+                    return pack
+        return None
+
+####################################################################################
+# 二.接收包协议
+####################################################################################
+
+#父包
 class Package(object):
     def __init__(self):
         pass
@@ -107,16 +146,10 @@ class PackageGetFriendDetail(Package):
         self.friendname = 0
 
 ####################################################################################
-#发送协议
+# 三.发送协议
 ####################################################################################
-class ComplexEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, 'reprJSON'):
-            return obj.reprJSON()
-        else:
-            return json.JSONEncoder.default(self, obj)
 
-
+#父包
 class SendToClientPackage(object):
     def __init__(self, action):
         super(SendToClientPackage, self).__init__()
@@ -133,16 +166,22 @@ class SendToClientPackage(object):
                     status=self.status,
                     errcode=self.errcode)
 
+    class ComplexEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if hasattr(obj, 'reprJSON'):
+                return obj.reprJSON()
+            else:
+                return json.JSONEncoder.default(self, obj)
+
 ####################################################################################
 
+#注册消息返回
 class SendToClientPackageRegister(object):
-    #注册消息返回
     def __init__(self):
         pass
 
-
+#登录情况和好友列表返回
 class SendToClientPackageUser(object):
-    #登录情况和好友列表返回
     def __init__(self, username, sex, online=False):
 
         self.username = username
@@ -156,9 +195,8 @@ class SendToClientPackageUser(object):
             sex=self.sex,
             online=self.online)
 
-
+#转发好友申请
 class SendToClientPackageRecvAddFriendRequest(object):
-    #转发好友申请
     def __init__(self, fromname, toname, sex, msg, date):
 
         self.fromname = fromname
@@ -175,9 +213,8 @@ class SendToClientPackageRecvAddFriendRequest(object):
             msg=self.msg,
             senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
-
+#返回添加好友结果
 class SendToClientAddFriendStatus(object):
-    #返回添加好友结果
     def __init__(self, username, toname, sex, msg, agree):
 
         self.fromname = username
@@ -194,9 +231,8 @@ class SendToClientAddFriendStatus(object):
             msg=self.msg,
             agree=self.agree)
 
-
+#发送消息
 class SendToClientPackageChatMessage(object):
-    #发送消息
     def __init__(self, fromname='', toname='', chatmsg=''):
 
         self.fromname = fromname
@@ -208,8 +244,8 @@ class SendToClientPackageChatMessage(object):
                     toname=self.toname,
                     chatmsg=self.chatmsg)
 
+#发送离线消息
 class SendToClientPackageOfflineChatMessage(object):
-    #发送离线消息
     def __init__(self, fromname, toname, msg, senddate):
 
         self.fromname = fromname
@@ -224,9 +260,8 @@ class SendToClientPackageOfflineChatMessage(object):
             chatmsg=self.chatmsg,
             senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
-
+#好友上线下线消息
 class SendToClientUserOnOffStatus(object):
-    #好友上线下线消息
     def __init__(self, username, online):
         self.username = username
         self.online = online
@@ -235,41 +270,3 @@ class SendToClientUserOnOffStatus(object):
         return dict(
             username=self.username,
             online=self.online)
-
-####################################################################################
-#协议解析
-####################################################################################
-class Protocol(object):
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def checkPackage(package):
-
-        json_msg = json.loads(package)
-
-        protocol = {
-                'login':                       PackageLogin,
-                'addfriend':                   PackageAddFriendRequest,
-                'addfriendstatus':             PackageAddFriendStatus,
-                'getfriends':                  PackageGetFriends,
-                'delfriend':                   PackageDeleteFriend,
-                'getfrienddetail':             PackageGetFriendDetail,
-                'sendchatmsg':                 PackageSendChatMessage,
-                'register':                    PackageRegister,
-        }
-
-        if 'datas' in json_msg:
-            datas = json_msg['datas']
-
-            if 'type' in datas:
-                stype = datas['type']
-
-                #存在协议内
-                if stype in protocol.keys():
-                    #解析协议
-                    pack = protocol[stype]()
-                    pack.parser(datas)
-                    return pack
-        return None
