@@ -223,7 +223,7 @@ class Logic(object):
 
         #检查是否是自己并且不是自己想要添加自己为好友
         if user.DBUser.username == package.username and user.DBUser.username != package.friendname:
-            friend = user.getFriendWithName(package.fiendname)
+            friend = user.getFriendWithUserName(package.fiendname)
 
             if friend:
                 bFriendship = True
