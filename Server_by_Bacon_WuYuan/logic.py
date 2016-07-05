@@ -8,7 +8,7 @@ from db import DBEngine, DBUser, DBRelationship, DBOfflineMsg, DBOfflineAddFrien
 from models import ServeList, GroupObject, UserObject, USERS_PAGES_SIZE
 from protocol import PackageLogin, PackageRegister, PackageRegisterAuth, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PackageExitGroup, PackageJoinGroup, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST, PACKAGE_ERRCODE_AUTHFAILED, PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_MAILNOTCONFIRM, PACKAGE_ERRCODE_NOTHISUSER, PACKAGE_ERRCODE_ANOTHERLOGIN, PACKAGE_ERRCODE_USERID, PACKAGE_ERRCODE_USEDMAIL, PACKAGE_ERRCODE_USERUNEXIST, PACKAGE_ERRCODE_INGROUP, PACKAGE_ERRCODE_NOTINGROUP, ComplexEncoder, SendToClientPackage, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriendStatus, SendToClientUserOnOffStatus, SendToClientGroupMemberJoinExitStatus
 
-
+#逻辑处理层
 class Logic(object):
 
     def __init__(self):
@@ -30,14 +30,14 @@ class Logic(object):
 
     #初始化群组#
     def groupInit(self):
-        pass
-        # db_groups = self.dbEngine.所有的群组名()
-        #
-        # for db_group in db_groups:
-        #     group = GroupObject(db_group)
-        #     self.serverList.addNewGroup(group)
-        #
-        #     self.getGroupMemberWithDB(group)
+
+        db_groups = self.dbEngine.所有的群组名()
+
+        for db_group in db_groups:
+            group = GroupObject(db_group)
+            self.serverList.addNewGroup(group)
+
+            self.getGroupMemberWithDB(group)
 
     #重置服务器#
     def reset(self):

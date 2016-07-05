@@ -1,32 +1,5 @@
 import json
 
-#通用错误
-PACKAGE_ERRCODE_USERID          = 10001 #用户ID错误
-PACKAGE_ERRCODE_FRIENDID        = 10002 #好友ID错误,此用户不是你好友
-PACKAGE_ERRCODE_USERFRIENDID    = 10003 #用户或者好友ID错误,ID非自己ID，或者好友ID与自己ID相同
-
-#注册
-PACKAGE_ERRCODE_USERUNEXIST     = 10010 #账号不存在
-PACKAGE_ERRCODE_USERISEXIST     = 10011 #帐号存在
-PACKAGE_ERRCODE_INPUTWRONG      = 10012 #输入异常
-PACKAGE_ERRCODE_LENGTHTOSHORT   = 10013 #帐号或密码长度不足
-PACKAGE_ERRCODE_USEDMAIL        = 10014 #邮箱已经使用
-PACKAGE_ERRCODE_AUTHFAILED      = 10015 #认证失败
-
-#登录
-PACKAGE_ERRCODE_USERNOTEXIST    = 10021 #帐号不存在
-PACKAGE_ERRCODE_WRONGPASSWORD   = 10022 #密码错误
-PACKAGE_ERRCODE_ANOTHERLOGIN    = 10023 #异地登录，退出当前帐号
-PACKAGE_ERRCODE_MAILNOTCONFIRM  = 10024 #邮箱没有被注册
-
-#好友
-PACKAGE_ERRCODE_FRIENDSHIPEXIST = 10031 #已经是好友
-PACKAGE_ERRCODE_NOTHISUSER      = 10032 #不存在此用户
-
-#群组
-PACKAGE_ERRCODE_INGROUP         = 10041 #已经在群里
-PACKAGE_ERRCODE_NOTINGROUP      = 10042 #不在群里
-
 ####################################################################################
 # 一.协议解析
 ####################################################################################
@@ -73,7 +46,7 @@ class Protocol(object):
 # 二.接收包协议
 ####################################################################################
 
-#父包
+#0.父包
 class Package(object):
     def __init__(self):
         pass
@@ -88,7 +61,7 @@ class Package(object):
 
 ####################################################################################
 
-#注册请求邮箱认证码
+#1.注册请求邮箱认证码
 class PackageRegister(Package):
     def __init__(self):
         super(PackageRegister, self).__init__()
@@ -98,7 +71,7 @@ class PackageRegister(Package):
         self.sex = 0
         self.mail = ''
 
-#发送注册认证码完成注册
+#2.发送注册认证码完成注册
 class PackageRegisterAuth(Package):
     def __init__(self):
         super(PackageRegisterAuth, self).__init__()
@@ -106,7 +79,7 @@ class PackageRegisterAuth(Package):
         self.mail = ''
         self.auth = ''
 
-#登录
+#3.登录
 class PackageLogin(Package):
     def __init__(self):
         super(PackageLogin, self).__init__()
@@ -114,7 +87,7 @@ class PackageLogin(Package):
         self.username = ''
         self.password = 0
 
-#申请添加好友
+#4.申请添加好友
 class PackageAddFriendRequest(Package):
     def __init__(self):
         super(PackageAddFriendRequest, self).__init__()
@@ -123,7 +96,7 @@ class PackageAddFriendRequest(Package):
         self.toname = ''
         self.msg = ''
 
-#同意或者拒绝添加好友申请
+#5.同意或者拒绝添加好友申请
 class PackageAddFriendStatus(Package):
     def __init__(self):
         super(PackageAddFriendStatus, self).__init__()
@@ -133,7 +106,7 @@ class PackageAddFriendStatus(Package):
         self.msg=''
         self.agree = 0
 
-#发送聊天信息
+#6.发送聊天信息
 class PackageSendChatMessage(Package):
     def __init__(self):
         super(PackageSendChatMessage, self).__init__()
@@ -143,7 +116,7 @@ class PackageSendChatMessage(Package):
         self.groupname = ''
         self.chatmsg = ''
 
-#获取好友列表
+#7.获取好友列表
 class PackageGetFriends(Package):
     def __init__(self):
         super(PackageGetFriends, self).__init__()
@@ -151,7 +124,7 @@ class PackageGetFriends(Package):
         self.username = ''
         self.page = 0
 
-#获取好友信息
+#8.获取好友信息
 class PackageGetFriendDetail(Package):
     def __init__(self):
         super(PackageGetFriendDetail, self).__init__()
@@ -159,7 +132,7 @@ class PackageGetFriendDetail(Package):
         self.username = ''
         self.friendname = ''
 
-#删除好友
+#9.删除好友
 class PackageDeleteFriend(Package):
     def __init__(self):
         super(PackageDeleteFriend, self).__init__()
@@ -167,7 +140,7 @@ class PackageDeleteFriend(Package):
         self.username = ''
         self.friendname = ''
 
-#加入群组
+#10.加入群组
 class PackageJoinGroup(Package):
     def __init__(self):
         super(PackageJoinGroup, self).__init__()
@@ -175,7 +148,7 @@ class PackageJoinGroup(Package):
         self.groupname = ''
         self.uesrname = ''
 
-#退出群组
+#11.退出群组
 class PackageExitGroup(Package):
     def __init__(self):
         super(PackageExitGroup, self).__init__()
@@ -187,7 +160,34 @@ class PackageExitGroup(Package):
 # 三.发送协议
 ####################################################################################
 
-#父包
+#通用错误
+PACKAGE_ERRCODE_USERID          = 10001 #用户ID错误
+PACKAGE_ERRCODE_FRIENDID        = 10002 #好友ID错误,此用户不是你好友
+PACKAGE_ERRCODE_USERFRIENDID    = 10003 #用户或者好友ID错误,ID非自己ID，或者好友ID与自己ID相同
+
+#注册
+PACKAGE_ERRCODE_USERUNEXIST     = 10010 #账号不存在
+PACKAGE_ERRCODE_USERISEXIST     = 10011 #帐号存在
+PACKAGE_ERRCODE_INPUTWRONG      = 10012 #输入异常
+PACKAGE_ERRCODE_LENGTHTOSHORT   = 10013 #帐号或密码长度不足
+PACKAGE_ERRCODE_USEDMAIL        = 10014 #邮箱已经使用
+PACKAGE_ERRCODE_AUTHFAILED      = 10015 #认证失败
+
+#登录
+PACKAGE_ERRCODE_USERNOTEXIST    = 10021 #帐号不存在
+PACKAGE_ERRCODE_WRONGPASSWORD   = 10022 #密码错误
+PACKAGE_ERRCODE_ANOTHERLOGIN    = 10023 #异地登录，退出当前帐号
+PACKAGE_ERRCODE_MAILNOTCONFIRM  = 10024 #邮箱没有被注册
+
+#好友
+PACKAGE_ERRCODE_FRIENDSHIPEXIST = 10031 #已经是好友
+PACKAGE_ERRCODE_NOTHISUSER      = 10032 #不存在此用户
+
+#群组
+PACKAGE_ERRCODE_INGROUP         = 10041 #已经在群里
+PACKAGE_ERRCODE_NOTINGROUP      = 10042 #不在群里
+
+#0.父包
 class SendToClientPackage(object):
     def __init__(self, action):
         super(SendToClientPackage, self).__init__()
@@ -213,7 +213,7 @@ class ComplexEncoder(json.JSONEncoder):
 
 ####################################################################################
 
-#登录状态返回,好友列表返回,删除好友通知
+#1.登录状态返回,好友列表返回,删除好友通知
 class SendToClientPackageUser(object):
     def __init__(self, username, sex, mail, online=False):
 
@@ -228,7 +228,7 @@ class SendToClientPackageUser(object):
                     mail=self.mail,
                     online=self.online)
 
-#转发好友申请
+#2.转发好友申请
 class SendToClientPackageRecvAddFriendRequest(object):
     def __init__(self, fromname, toname, sex, msg, date):
 
@@ -245,7 +245,7 @@ class SendToClientPackageRecvAddFriendRequest(object):
                     msg=self.msg,
                     senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
-#返回添加好友结果
+#3.返回添加好友结果
 class SendToClientAddFriendStatus(object):
     def __init__(self, username, toname, sex, msg, agree):
 
@@ -262,7 +262,7 @@ class SendToClientAddFriendStatus(object):
                     msg=self.msg,
                     agree=self.agree)
 
-#发送消息
+#4.发送消息
 class SendToClientPackageChatMessage(object):
     def __init__(self, fromname='', toname='', groupname='', chatmsg='', senddate=''):
 
@@ -279,7 +279,7 @@ class SendToClientPackageChatMessage(object):
                     chatmsg=self.chatmsg,
                     senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
-#好友上线下线消息
+#5.好友上线下线消息
 class SendToClientUserOnOffStatus(object):
     def __init__(self, username, online):
 
@@ -290,7 +290,7 @@ class SendToClientUserOnOffStatus(object):
         return dict(username=self.username,
                     online=self.online)
 
-#好友进退群消息
+#6.好友进退群消息
 class SendToClientGroupMemberJoinExitStatus(object):
     def __init__(self, username, groupname, status):
 
