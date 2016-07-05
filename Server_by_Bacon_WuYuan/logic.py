@@ -28,14 +28,14 @@ class Logic(object):
             return True
 
     def groupInit(self):
-
-        db_groups = self.dbEngine.所有的群组名()
-        
-        for db_group in db_groups:
-            group = GroupObject(db_group)
-            self.serverList.addNewGroup(group)
-
-            self.getGroupMemberWithDB(group)
+        pass
+        # db_groups = self.dbEngine.所有的群组名()
+        #
+        # for db_group in db_groups:
+        #     group = GroupObject(db_group)
+        #     self.serverList.addNewGroup(group)
+        #
+        #     self.getGroupMemberWithDB(group)
 
     def reset(self):
         self.serverList.reset()
