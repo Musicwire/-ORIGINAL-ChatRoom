@@ -27,11 +27,12 @@ class Connection(object):
         pass
 
     def broadcast_streaming_message(self, data):
-        print(data)
         data = data.decode('utf-8')
+        print('rev:  ', data)
         self._stream_package.add(data)
 
     def send_message(self, data):
+        print('send:   ', data)
         data = data.encode('utf-8')
         try:
             self._stream.write(data)
