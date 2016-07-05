@@ -27,7 +27,7 @@ class Connection(object):
         pass
 
     def broadcast_streaming_message(self, data):
-        #print data
+        print(data)
         data = data.decode('utf-8')
         self._stream_package.add(data)
 
@@ -47,7 +47,6 @@ class Connection(object):
 
     ######################################################################
     def onPackageDecode(self, package):
-        #print package
         Connection.logic.handlePackage(self, package)
 
 ######################################################################
