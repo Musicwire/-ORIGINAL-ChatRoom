@@ -81,7 +81,7 @@ class GroupObject(object):
 
     def getAllMember(self):
         #获取成员列表
-        return self.members.values()
+        return list(self.members.values())
 
     def getMemberWithUsername(self, username):
         #根据用户名获取成员
@@ -111,7 +111,7 @@ class UserObject(object):
 
     def getAllFriends(self):
         #获取好友列表
-        return self.friends.values()
+        return list(self.friends.values())
 
     def getFriendWithUsername(self, username):
         #根据用户名获取好友

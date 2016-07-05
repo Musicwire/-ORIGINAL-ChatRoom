@@ -47,21 +47,25 @@ class Logic(object):
     ##逻辑处理部分##
     def handlePackage(self, connection , package):
         if isinstance(package, PackageRegister):
+            print('handleUserRegister')
             self.handleUserRegister(connection, package)
 
         elif isinstance(package, PackageRegisterAuth):
             self.handleUserRegisterAuth(connection, package)
 
         elif isinstance(package, PackageLogin):
+            print('handleUserLogin')
             self.handleUserLogin(connection, package)
 
         elif isinstance(package, PackageAddFriendRequest):
+            print('handleAddFriendRequest')
             self.handleAddFriendRequest(connection, package)
 
         elif isinstance(package, PackageAddFriendStatus):
             self.handleAddFriendRequestStatus(connection, package)
 
         elif isinstance(package, PackageGetFriends):
+            print('handleGetFriends')
             self.handleGetFriends(connection, package)
 
         elif isinstance(package, PackageDeleteFriend):
@@ -222,8 +226,8 @@ class Logic(object):
         bFriendship = False
 
         #检查是否是自己并且不是自己想要添加自己为好友
-        if user.DBUser.username == package.username and user.DBUser.username != package.friendname:
-            friend = user.getFriendWithUserName(package.fiendname)
+        if user.DBUser.username == package.fromname and user.DBUser.username != package.toname:
+            friend = user.getFriendWithUsername(package.toname)
 
             if friend:
                 bFriendship = True
@@ -233,21 +237,21 @@ class Logic(object):
                 user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
                 #step2 在线,发送添加
-                online_user = self.serverList.getUserExistByUsername(package.friendname)
+                online_user = self.serverList.getUserExistByUsername(package.toname)
 
                 if online_user:
-                    addreq = SendToClientPackageRecvAddFriendRequest(package.username,
-                                                                     package.friendname,
+                    addreq = SendToClientPackageRecvAddFriendRequest(package.fromname,
+                                                                     package.toname,
                                                                      user.DBUser.sex,
                                                                      package.msg,
-                                                                     package.msg, datetime.datetime.now())
+                                                                     datetime.datetime.now())
                     retPackage.obj = addreq
 
                     online_user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
                 else:
                     #插入数据库,等待上线时候通知
-                    self.dbEngine.setOfflineAddFriendReuqest(package.username, package.friendname, package.msg, datetime.datetime.now())
-
+                    print('Insert datebase')
+                    self.dbEngine.setOfflineAddFriendReuqest(package.toname, package.fromname, package.msg, datetime.datetime.now())
             else:
                 #已经是好友，返回错误信息
                 retPackage.errcode = PACKAGE_ERRCODE_FRIENDSHIPEXIST
@@ -266,29 +270,29 @@ class Logic(object):
         retPackage = SendToClientPackage('addfriendstatus')
 
         #自己的id
-        if user.DBUser.username == package.username and user.DBUser.username != package.friendname:
+        if user.DBUser.username == package.toname and user.DBUser.username != package.fromname:
 
             #如果同意
             if package.agree:
 
                 #step 1. 检查是否是自己的好友
-                if not self.dbEngine.getFriendshipWithUserFriendId(package.uid, package.fid):
-                    db_friend = self.dbEngine.getUserInfoWithUserId(package.fid)
+                if not self.dbEngine.getFriendshipWithUserFriendName(package.fromname, package.toname):
+                    db_friend = self.dbEngine.getUserInfoWithUserName(package.fromname)
 
                     #存在数据库中
                     if db_friend:
                         retPackage.status = 1
                         #保存关系到数据库
-                        self.dbEngine.setFriendshipWithUserNames(package.username, package.friendname)
+                        self.dbEngine.setFriendshipWithUserNames(package.toname, package.fromname)
 
                         user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
                         #检查是否在线,在线发送上线通知
-                        online_friend = self.serverList.getUserExistByUsername(package.friendname)
+                        online_friend = self.serverList.getUserExistByUsername(package.fromname)
 
                         if online_friend:
                             #当前在线
-                            online_status = SendToClientAddFriendStatus(package.username,
-                                                                        package.friendname,
+                            online_status = SendToClientAddFriendStatus(package.fromname,
+                                                                        package.toname,
                                                                         user.DBUser.sex,
                                                                         package.msg,
                                                                         package.agree)
@@ -460,7 +464,7 @@ class Logic(object):
         retPackage = SendToClientPackage('sendchatmsg')
 
         # 不是群组消息
-        if package.groupname is None:
+        if package.groupname == '':
 
             # 自己的name
             if user.DBUser.username == package.fromname and user.DBUser.username != package.toname:
@@ -468,7 +472,7 @@ class Logic(object):
                 #寻找好友
                 for friend in user.getAllFriends():
 
-                    if friend.DBUser.username == int(package.toname):
+                    if friend.DBUser.username == package.toname:
                         #发送消息给好友
                         retPackage.status = 1
 
@@ -608,6 +612,7 @@ class Logic(object):
             fuser = self.dbEngine.getUserInfoWithUserId(off_add_req.fromid)
             send_request = SendToClientPackageRecvAddFriendRequest(fuser.username,
                                                                    user.DBUser.username,
+                                                                   user.DBUser.sex,
                                                                    off_add_req.msg,
                                                                    off_add_req.lastdate)
             add_requests.append(send_request)
