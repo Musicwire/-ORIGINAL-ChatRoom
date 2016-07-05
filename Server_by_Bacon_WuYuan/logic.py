@@ -11,12 +11,13 @@ from protocol import PackageLogin, PackageRegister, PackageRegisterAuth, Package
 #逻辑处理层
 class Logic(object):
 
+    #0.初始化
     def __init__(self):
         self.serverList = ServeList()
         self.dbEngine = DBEngine()
         self.groupInit()
 
-    #输入是否合法，防止sql注入#
+    #1.输入是否合法，防止sql注入
     def findBadInput(self, inputstring):
 
         if '\'' in inputstring:
@@ -28,7 +29,7 @@ class Logic(object):
         elif ' ' in inputstring:
             return True
 
-    #初始化群组#
+    #2.初始化群组
     def groupInit(self):
 
         db_groups = self.dbEngine.所有的群组名()
@@ -39,7 +40,7 @@ class Logic(object):
 
             self.getGroupMemberWithDB(group)
 
-    #重置服务器#
+    #3.重置服务器
     def reset(self):
         self.serverList.reset()
 
@@ -47,56 +48,57 @@ class Logic(object):
     # 一.协议处理部分
     ####################################################################################
 
-    ##逻辑处理部分##
+    #0.逻辑处理部分
     def handlePackage(self, connection , package):
         if isinstance(package, PackageRegister):                        #请求邮箱认证码状态返回
-            print('register')
+            print('package register')
             self.handleUserRegister(connection, package)
 
         elif isinstance(package, PackageRegisterAuth):                  #注册状态返回
-            print('registerauth')
+            print('package registerauth')
             self.handleUserRegisterAuth(connection, package)
 
         elif isinstance(package, PackageLogin):                         #登陆状态返回
-            print('login')
+            print('package login')
             self.handleUserLogin(connection, package)
 
         elif isinstance(package, PackageAddFriendRequest):              #转发添加好友申请
-            print('addfriend')
+            print('package addfriend')
             self.handleAddFriendRequest(connection, package)
 
         elif isinstance(package, PackageAddFriendStatus):               #返回好友添加结果
-            print('addfriendstatus')
+            print('package addfriendstatus')
             self.handleAddFriendRequestStatus(connection, package)
 
         elif isinstance(package, PackageDeleteFriend):                  #删除好友通知
-            print('delfriend')
+            print('package delfriend')
             self.handleDeleteFriend(connection, package)
 
         elif isinstance(package, PackageGetFriends):                    #好友列表返回
-            print('getfriends')
+            print('package getfriends')
             self.handleGetFriends(connection, package)
 
         elif isinstance(package, PackageGetFriendDetail):               #获取好友信息
-            print('getfrienddetail')
+            print('package getfrienddetail')
             self.handleGetFriendDetail(connection, package)
 
         elif isinstance(package, PackageJoinGroup):                     #好友加群提醒
-            print('joingroup')
+            print('package joingroup')
             self.handleJoinGroup(package)
 
         elif isinstance(package, PackageExitGroup):                     #好友退群提醒
-            print('exitgroup')
+            print('package exitgroup')
             self.handleExitGroup(package)
 
         elif isinstance(package, PackageSendChatMessage):               #发送聊天信息
-            print('sendchatmsg')
+            print('package sendchatmsg')
             self.handleSendChatMessage(connection, package)
 
+    #1.根据connection断开连接
     def closeConnection(self, connection):
-        print("closeConnection OK")
+        print("Connection closed")
         user = self.serverList.getUserByConnection(connection)
-        if user:#注册完成之后就断开socket
+        if user:
             self.serverList.deleteUserByUser(user)
             friends = user.getAllFriends()
             if len(friends) > 0:
@@ -107,7 +109,7 @@ class Logic(object):
     ####################################################################################
 
 
-    #----请求邮箱认证码状态返回----#
+    #----0.请求邮箱认证码状态返回----#
     def handleUserRegister(self, connection, package):
 
         retPackage = SendToClientPackage('register')
@@ -150,7 +152,7 @@ class Logic(object):
         connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #----注册状态返回----#
+    #----1.注册状态返回----#
     def handleUserRegisterAuth(self,connection, package):
 
         retPackage = SendToClientPackage('registerauth')
@@ -169,7 +171,7 @@ class Logic(object):
         connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #----登陆状态返回----#
+    #----2.登陆状态返回----#
     def handleUserLogin(self, connection, package):
 
         retPackage = SendToClientPackage('login')
@@ -229,7 +231,7 @@ class Logic(object):
         connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #----转发添加好友申请----#
+    #----3.转发添加好友申请----#
     def handleAddFriendRequest(self, connection, package):
 
         user = self.serverList.getUserByConnection(connection)
@@ -274,7 +276,7 @@ class Logic(object):
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #---返回好友添加结果---#
+    #---4.返回好友添加结果---#
     def handleAddFriendRequestStatus(self, connection, package):
 
         user = self.serverList.getUserByConnection(connection)
@@ -345,7 +347,7 @@ class Logic(object):
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #---删除好友通知---#
+    #---5.删除好友通知---#
     def handleDeleteFriend(self, connection, package):
 
         user = self.serverList.getUserByConnection(connection)
@@ -377,7 +379,7 @@ class Logic(object):
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #---好友列表返回---#
+    #---6.好友列表返回---#
     def handleGetFriends(self, connection, package):
 
         user = self.serverList.getUserByConnection(connection)
@@ -399,7 +401,7 @@ class Logic(object):
         user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #---获得好友信息---#
+    #---7.获得好友信息---#
     def handleGetFriendDetail(self, connection, package):
 
         user = self.serverList.getUserByConnection(connection)
@@ -416,7 +418,7 @@ class Logic(object):
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #---加入群组---#
+    #---8.加入群组---#
     def handleJoinGroup(self, package):
 
         user = self.serverList.getUserByUsername(package.username)
@@ -442,7 +444,7 @@ class Logic(object):
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #---退出群组---#
+    #---9.退出群组---#
     def handleExitGroup(self, package):
 
         user = self.serverList.getUserByUsername(package.username)
@@ -468,7 +470,7 @@ class Logic(object):
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #---发送聊天消息---#
+    #---10.发送聊天消息---#
     def handleSendChatMessage(self, connection, package):
 
         user = self.serverList.getUserByConnection(connection)
@@ -554,8 +556,8 @@ class Logic(object):
     # 三.逻辑中的部分细节处理
     ####################################################################################
 
-    #---生成认证码---#
-    #---from:handleUserRegister---#
+    #---0.生成认证码---#
+    #---from: 0.handleUserRegister---#
     def getauthcode(self):
 
         authcode = ''
@@ -564,8 +566,8 @@ class Logic(object):
         return authcode
 
 
-    #---发送邮箱认证码---#
-    #---from:handleUserRegister---#
+    #---1.发送邮箱认证码---#
+    #---from: 0.handleUserRegister---#
     def sendmailauth(self, mail, authcode):
 
         smtp_server = 'smtp.sina.com'
@@ -582,8 +584,8 @@ class Logic(object):
         server.quit()
 
 
-    #---获取用户的所有好友信息---#
-    #---from:handleUserLogin---#
+    #---2,获取用户的所有好友信息---#
+    #---from: 2.handleUserLogin---#
     def getUserFriendsWithDBAndOnLineUsers(self, user):
 
         #step 1.从数据库加载
@@ -608,8 +610,8 @@ class Logic(object):
                 friend.online = True
 
 
-    #---获取群组的所有成员信息---#
-    #---from:groupInit---#
+    #---3.获取群组的所有成员信息---#
+    #---from: groupInit---#
     def getGroupMemberWithDB(self, group):
 
         members = self.dbEngine.获得群组所有成员(group.DBGroup.groupname)
@@ -620,8 +622,8 @@ class Logic(object):
             group.addMember(member)
 
 
-    #---从数据库获取所有离线申请添加好友的用户并发送给用户--#
-    #---from:handleUserLogin---#
+    #---4.从数据库获取所有离线申请添加好友的用户并发送给用户--#
+    #---from: 2.handleUserLogin---#
     def getAllAddFriendRequestFromDBAndSendToClient(self, user):
 
         add_requests = []
@@ -648,8 +650,8 @@ class Logic(object):
             self.dbEngine.deleteOfflineAddFriendRequestWithUserName(user.DBUser.username)
 
 
-    #---获取所有离线消息并发送---#
-    #---from:handleUserLogin---#
+    #---5.获取所有离线消息并发送---#
+    #---from: 2.handleUserLogin---#
     def getOfflineChatMessageAndSendWithUser(self, user):
 
         db_offline_chat_messages = self.dbEngine.getAllOfflineChatMessageWithUserName(user.DBUser.username)
@@ -677,8 +679,19 @@ class Logic(object):
             self.dbEngine.deleteAllOfflineChatMessageWithUserName(user.DBUser.username)
 
 
-    #---广播用户的上线下线消息---#
-    #---from:handleUserLogin & closeConnection---#
+    # ---6.将在线用户列表里面的所有状态修改为在线---#
+    # ---from: 2.handleUserLogin---#
+    def setUserOnlineInOnlineUsersFriends(self, user):
+
+        for friend in user.getAllFriends():
+            online_friend = self.serverList.getUserExistByUsername(friend.DBUser.username)
+            if online_friend:
+                myself = online_friend.getFriendWithUsername(user.DBUser.username)
+                myself.connection = user.connection
+
+
+    #---7.广播用户的上线下线消息---#
+    #---from: 2.handleUserLogin & closeConnection---#
     def broadcastOnlineStatusToAllFriend(self, user, online):
 
         retPackage = SendToClientPackage('useronoffline')
@@ -702,8 +715,8 @@ class Logic(object):
                     myself.connection = None
 
 
-    #---广播群组成员加退群信息---#
-    #---from:handleUserLogin & closeConnection---#
+    #---8.广播群组成员加退群信息---#
+    #---from: 8.handlejoingroup & 9.handleexitgroup---#
     def broadcastJoinExitStatusToAllMember(self, username, groupname, status):
 
         retPackage = SendToClientPackage('memberjoinexitgroup')
@@ -725,19 +738,8 @@ class Logic(object):
                 online_member.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #---将在线用户列表里面的所有状态修改为在线---#
-    #---from:handleUserLogin---#
-    def setUserOnlineInOnlineUsersFriends(self, user):
-
-        for friend in user.getAllFriends():
-            online_friend = self.serverList.getUserExistByUsername(friend.DBUser.username)
-            if online_friend:
-                myself = online_friend.getFriendWithUsername(user.DBUser.username)
-                myself.connection = user.connection
-
-
-    #---获取用户好友列表---#
-    #--from:handleGetFriends---#
+    #---9.获取用户好友列表---#
+    #--from: 5.handleGetFriends---#
     def getUserFriendsWithUserAndPage(self, user, page):
 
         retFriends = []
