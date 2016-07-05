@@ -30,6 +30,7 @@ PACKAGE_ERRCODE_NOTINGROUP      = 10042 #不在群里
 ####################################################################################
 # 一.协议解析
 ####################################################################################
+
 class Protocol(object):
 
     def __init__(self):
@@ -41,17 +42,17 @@ class Protocol(object):
         json_msg = json.loads(package)
 
         protocol = {
-            'register':                    PackageRegister,
-            'login':                       PackageLogin,
-            'addfriend':                   PackageAddFriendRequest,
-            'delfriend':                   PackageDeleteFriend,
-            'addfriendstatus':             PackageAddFriendStatus,
-            'getfriends':                  PackageGetFriends,
-            'getfrienddetail':             PackageGetFriendDetail,
-            'sendchatmsg':                 PackageSendChatMessage,
-            'joingroup':                   PackageJoinGroup,
-            'exitgroup':                   PackageExitGroup,
-            'registerauth':                PackageRegisterAuth
+            'register':                    PackageRegister,             #注册请求邮箱认证码
+            'registerauth':                PackageRegisterAuth,         #发送注册认证码完成注册
+            'login':                       PackageLogin,                #登陆
+            'addfriend':                   PackageAddFriendRequest,     #添加好友
+            'addfriendstatus':             PackageAddFriendStatus,      #是否同意添加
+            'delfriend':                   PackageDeleteFriend,         #删除好友
+            'getfriends':                  PackageGetFriends,           #获取好友列表
+            'getfrienddetail':             PackageGetFriendDetail,      #获取好友信息
+            'sendchatmsg':                 PackageSendChatMessage,      #发送信息
+            'joingroup':                   PackageJoinGroup,            #加入群组
+            'exitgroup':                   PackageExitGroup             #退出群组
         }
 
         if 'datas' in json_msg:
@@ -86,17 +87,18 @@ class Package(object):
                 pass
 
 ####################################################################################
-#注册
+
+#注册请求邮箱认证码
 class PackageRegister(Package):
     def __init__(self):
         super(PackageRegister, self).__init__()
 
         self.username = ''
-        self.password = ''
+        self.password = 0
         self.sex = 0
         self.mail = ''
 
-#注册认证
+#发送注册认证码完成注册
 class PackageRegisterAuth(Package):
     def __init__(self):
         super(PackageRegisterAuth, self).__init__()
@@ -110,7 +112,7 @@ class PackageLogin(Package):
         super(PackageLogin, self).__init__()
 
         self.username = ''
-        self.password = ''
+        self.password = 0
 
 #申请添加好友
 class PackageAddFriendRequest(Package):
@@ -149,18 +151,18 @@ class PackageGetFriends(Package):
         self.username = ''
         self.page = 0
 
-#删除好友
-class PackageDeleteFriend(Package):
-    def __init__(self):
-        super(PackageDeleteFriend, self).__init__()
-
-        self.username = ''
-        self.friendname = ''
-
 #获取好友信息
 class PackageGetFriendDetail(Package):
     def __init__(self):
         super(PackageGetFriendDetail, self).__init__()
+
+        self.username = ''
+        self.friendname = ''
+
+#删除好友
+class PackageDeleteFriend(Package):
+    def __init__(self):
+        super(PackageDeleteFriend, self).__init__()
 
         self.username = ''
         self.friendname = ''
@@ -211,12 +213,7 @@ class ComplexEncoder(json.JSONEncoder):
 
 ####################################################################################
 
-#注册消息返回
-class SendToClientPackageRegister(object):
-    def __init__(self):
-        pass
-
-#登录情况和好友列表返回
+#登录状态返回,好友列表返回,删除好友通知
 class SendToClientPackageUser(object):
     def __init__(self, username, sex, mail, online=False):
 
@@ -226,7 +223,6 @@ class SendToClientPackageUser(object):
         self.online = online
 
     def reprJSON(self):
-
         return dict(username=self.username,
                     sex=self.sex,
                     mail=self.mail,
@@ -286,6 +282,7 @@ class SendToClientPackageChatMessage(object):
 #好友上线下线消息
 class SendToClientUserOnOffStatus(object):
     def __init__(self, username, online):
+
         self.username = username
         self.online = online
 
@@ -296,6 +293,7 @@ class SendToClientUserOnOffStatus(object):
 #好友进退群消息
 class SendToClientGroupMemberJoinExitStatus(object):
     def __init__(self, username, groupname, status):
+
         self.username = username
         self.groupname = groupname
         self.status = status

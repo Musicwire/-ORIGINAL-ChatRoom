@@ -119,5 +119,3 @@ class UserObject(object):
             return self.friends[username]
         else:
             return None
-
-
