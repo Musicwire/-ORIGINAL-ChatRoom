@@ -209,6 +209,8 @@ class Logic(object):
                 user = UserObject(connection, db_user)
                 self.serverList.addNewOnlineUser(user)
 
+                #XMLCertificate = self.createXMLCertificate() 生成XML证书
+
                 retPackage.status = 1
                 retPackage.obj = SendToClientPackageUser(user.DBUser.username,
                                                          user.DBUser.sex,
@@ -556,7 +558,7 @@ class Logic(object):
     # 三.逻辑中的部分细节处理
     ####################################################################################
 
-    #---0.生成认证码---#
+    #---1.生成认证码---#
     #---from: 0.handleUserRegister---#
     def getauthcode(self):
 
@@ -566,7 +568,7 @@ class Logic(object):
         return authcode
 
 
-    #---1.发送邮箱认证码---#
+    #---2.发送邮箱认证码---#
     #---from: 0.handleUserRegister---#
     def sendmailauth(self, mail, authcode):
 
@@ -583,8 +585,14 @@ class Logic(object):
         server.sendmail(from_addr, [to_addr], msg.as_string())
         server.quit()
 
+    #---3.发送邮箱认证码---#
+    #---from: 2.handleUserLoginr---#
+    def createXMLCertificate(self, mail, authcode):
 
-    #---2,获取用户的所有好友信息---#
+        pass
+
+
+    #---4,获取用户的所有好友信息---#
     #---from: 2.handleUserLogin---#
     def getUserFriendsWithDBAndOnLineUsers(self, user):
 
@@ -610,7 +618,7 @@ class Logic(object):
                 friend.online = True
 
 
-    #---3.获取群组的所有成员信息---#
+    #---5.获取群组的所有成员信息---#
     #---from: groupInit---#
     def getGroupMemberWithDB(self, group):
 
@@ -622,7 +630,7 @@ class Logic(object):
             group.addMember(member)
 
 
-    #---4.从数据库获取所有离线申请添加好友的用户并发送给用户--#
+    #---6.从数据库获取所有离线申请添加好友的用户并发送给用户--#
     #---from: 2.handleUserLogin---#
     def getAllAddFriendRequestFromDBAndSendToClient(self, user):
 
@@ -650,7 +658,7 @@ class Logic(object):
             self.dbEngine.deleteOfflineAddFriendRequestWithUserName(user.DBUser.username)
 
 
-    #---5.获取所有离线消息并发送---#
+    #---7.获取所有离线消息并发送---#
     #---from: 2.handleUserLogin---#
     def getOfflineChatMessageAndSendWithUser(self, user):
 
@@ -679,7 +687,7 @@ class Logic(object):
             self.dbEngine.deleteAllOfflineChatMessageWithUserName(user.DBUser.username)
 
 
-    # ---6.将在线用户列表里面的所有状态修改为在线---#
+    # ---8.将在线用户列表里面的所有状态修改为在线---#
     # ---from: 2.handleUserLogin---#
     def setUserOnlineInOnlineUsersFriends(self, user):
 
@@ -690,7 +698,7 @@ class Logic(object):
                 myself.connection = user.connection
 
 
-    #---7.广播用户的上线下线消息---#
+    #---9.广播用户的上线下线消息---#
     #---from: 2.handleUserLogin & closeConnection---#
     def broadcastOnlineStatusToAllFriend(self, user, online):
 
@@ -715,7 +723,7 @@ class Logic(object):
                     myself.connection = None
 
 
-    #---8.广播群组成员加退群信息---#
+    #---10.广播群组成员加退群信息---#
     #---from: 8.handlejoingroup & 9.handleexitgroup---#
     def broadcastJoinExitStatusToAllMember(self, username, groupname, status):
 
@@ -738,7 +746,7 @@ class Logic(object):
                 online_member.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
 
-    #---9.获取用户好友列表---#
+    #---11.获取用户好友列表---#
     #--from: 5.handleGetFriends---#
     def getUserFriendsWithUserAndPage(self, user, page):
 
