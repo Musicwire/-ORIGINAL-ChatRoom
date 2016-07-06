@@ -213,20 +213,18 @@ class ComplexEncoder(json.JSONEncoder):
 
 ####################################################################################
 
-#1.登录状态返回,好友列表返回,删除好友通知
+#1.登录状态返回,删除好友通知
 class SendToClientPackageUser(object):
-    def __init__(self, username, sex, mail, online=False):
+    def __init__(self, username, sex, mail):
 
         self.username = username
         self.sex = sex
         self.mail = mail
-        self.online = online
 
     def reprJSON(self):
         return dict(username=self.username,
                     sex=self.sex,
-                    mail=self.mail,
-                    online=self.online)
+                    mail=self.mail)
 
 #2.转发好友申请
 class SendToClientPackageRecvAddFriendRequest(object):
@@ -262,7 +260,26 @@ class SendToClientAddFriendStatus(object):
                     msg=self.msg,
                     agree=self.agree)
 
-#4.发送消息
+#4.好友列表返回
+class SendToClientPackageFriendsList(object):
+    def __init__(self, username, sex, mail, ipaddress, ipport, online=False):
+
+        self.username = username
+        self.sex = sex
+        self.mail = mail
+        self.ipaddress = ipaddress
+        self.ipport = ipport
+        self.online = online
+
+    def reprJSON(self):
+        return dict(username=self.username,
+                    sex=self.sex,
+                    mail=self.mail,
+                    ipaddress=self.ipaddress,
+                    ipport=self.ipport,
+                    online=self.online)
+
+#5.发送消息
 class SendToClientPackageChatMessage(object):
     def __init__(self, fromname='', toname='', groupname='', chatmsg='', senddate=''):
 
@@ -279,7 +296,7 @@ class SendToClientPackageChatMessage(object):
                     chatmsg=self.chatmsg,
                     senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
-#5.好友上线下线消息
+#6.好友上线下线消息
 class SendToClientUserOnOffStatus(object):
     def __init__(self, username, online):
 
@@ -290,7 +307,7 @@ class SendToClientUserOnOffStatus(object):
         return dict(username=self.username,
                     online=self.online)
 
-#6.好友进退群消息
+#7.好友进退群消息
 class SendToClientGroupMemberJoinExitStatus(object):
     def __init__(self, username, groupname, status):
 
