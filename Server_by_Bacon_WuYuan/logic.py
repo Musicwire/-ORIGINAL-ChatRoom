@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 
 from db import DBEngine, DBUser, DBRelationship, DBOfflineMsg, DBOfflineAddFriend, DBMail
 from models import ServeList, GroupObject, UserObject, USERS_PAGES_SIZE
-from protocol import PackageLogin, PackageRegister, PackageRegisterAuth, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PackageExitGroup, PackageJoinGroup, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST, PACKAGE_ERRCODE_AUTHFAILED, PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_MAILNOTCONFIRM, PACKAGE_ERRCODE_NOTHISUSER, PACKAGE_ERRCODE_ANOTHERLOGIN, PACKAGE_ERRCODE_USERID, PACKAGE_ERRCODE_USEDMAIL, PACKAGE_ERRCODE_USERUNEXIST, PACKAGE_ERRCODE_INGROUP, PACKAGE_ERRCODE_NOTINGROUP, ComplexEncoder, SendToClientPackage, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriendStatus, SendToClientUserOnOffStatus, SendToClientGroupMemberJoinExitStatus, SendToClientPackageFriendsList
+from protocol import PackageLogin, PackageRegister, PackageRegisterAuth, PackageAddFriendRequest, PackageAddFriendStatus , PackageGetFriends , PackageDeleteFriend , PackageGetFriendDetail , PackageSendChatMessage, PackageExitGroup, PackageJoinGroup, PACKAGE_ERRCODE_INPUTWRONG,PACKAGE_ERRCODE_LENGTHTOSHORT,PACKAGE_ERRCODE_USERISEXIST, PACKAGE_ERRCODE_AUTHFAILED, PACKAGE_ERRCODE_LENGTHTOSHORT , PACKAGE_ERRCODE_FRIENDSHIPEXIST , PACKAGE_ERRCODE_USERFRIENDID, PACKAGE_ERRCODE_MAILNOTCONFIRM, PACKAGE_ERRCODE_NOTHISUSER, PACKAGE_ERRCODE_ANOTHERLOGIN, PACKAGE_ERRCODE_USERID, PACKAGE_ERRCODE_USEDMAIL, PACKAGE_ERRCODE_USERUNEXIST, PACKAGE_ERRCODE_INGROUP, PACKAGE_ERRCODE_NOTINGROUP, ComplexEncoder, SendToClientPackage, SendToClientPackageUser, SendToClientPackageChatMessage, SendToClientPackageRecvAddFriendRequest, SendToClientAddFriendStatus, SendToClientUserOnOffStatus, SendToClientGroupMemberJoinExitStatus, SendToClientPackageFriendsList, SendToClientPackageAnotherLogin
 
 #逻辑处理层
 class Logic(object):
@@ -198,6 +198,7 @@ class Logic(object):
                     #step 1.发送异地登录消息
                     another = SendToClientPackage('anotherlogin')
                     another.errcode = PACKAGE_ERRCODE_ANOTHERLOGIN
+                    another.obj = SendToClientPackageAnotherLogin(self.serverList.users[package.username].connection.address[0])
 
                     online_user.connection.send_message(json.dumps(another, cls=ComplexEncoder))
 
@@ -759,14 +760,21 @@ class Logic(object):
                 #在页码范围内的好友
                 friends = friends[nStart: nEnd]
                 for friend in friends:
-                    online = False
+
+                    #在线
                     if friend.connection:
-                        online = True
-                    retUser = SendToClientPackageFriendsList(friend.DBUser.username,
-                                                             friend.DBUser.sex,
-                                                             friend.DBUser.mail,
-                                                             friend.connection.address[0],
-                                                             friend.connection.address[1],
-                                                             online)
+                        retUser = SendToClientPackageFriendsList(friend.DBUser.username,
+                                                                 friend.DBUser.sex,
+                                                                 friend.DBUser.mail,
+                                                                 friend.connection.address[0],
+                                                                 True)
+                    #不在线
+                    else:
+                        retUser = SendToClientPackageFriendsList(friend.DBUser.username,
+                                                                 friend.DBUser.sex,
+                                                                 friend.DBUser.mail,
+                                                                 '',
+                                                                 False)
+
                     retFriends.append(retUser)
         return retFriends

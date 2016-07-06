@@ -226,7 +226,16 @@ class SendToClientPackageUser(object):
                     sex=self.sex,
                     mail=self.mail)
 
-#2.转发好友申请
+#2.异地登陆
+class SendToClientPackageAnotherLogin(object):
+    def __init__(self, ipaddress):
+
+        self.ipaddress = ipaddress
+
+    def reprJSON(self):
+        return dict(address=self.ipaddress)
+
+#3.转发好友申请
 class SendToClientPackageRecvAddFriendRequest(object):
     def __init__(self, fromname, toname, sex, msg, date):
 
@@ -243,7 +252,7 @@ class SendToClientPackageRecvAddFriendRequest(object):
                     msg=self.msg,
                     senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
-#3.返回添加好友结果
+#4.返回添加好友结果
 class SendToClientAddFriendStatus(object):
     def __init__(self, username, toname, sex, msg, agree):
 
@@ -260,15 +269,14 @@ class SendToClientAddFriendStatus(object):
                     msg=self.msg,
                     agree=self.agree)
 
-#4.好友列表返回
+#5.好友列表返回
 class SendToClientPackageFriendsList(object):
-    def __init__(self, username, sex, mail, ipaddress, ipport, online=False):
+    def __init__(self, username, sex, mail, ipaddress, online=False):
 
         self.username = username
         self.sex = sex
         self.mail = mail
         self.ipaddress = ipaddress
-        self.ipport = ipport
         self.online = online
 
     def reprJSON(self):
@@ -276,10 +284,9 @@ class SendToClientPackageFriendsList(object):
                     sex=self.sex,
                     mail=self.mail,
                     ipaddress=self.ipaddress,
-                    ipport=self.ipport,
                     online=self.online)
 
-#5.发送消息
+#6.发送消息
 class SendToClientPackageChatMessage(object):
     def __init__(self, fromname='', toname='', groupname='', chatmsg='', senddate=''):
 
@@ -296,7 +303,7 @@ class SendToClientPackageChatMessage(object):
                     chatmsg=self.chatmsg,
                     senddate=self.senddate.strftime("%Y-%m-%d %H:%M:%S"))
 
-#6.好友上线下线消息
+#7.好友上线下线消息
 class SendToClientUserOnOffStatus(object):
     def __init__(self, username, online):
 
@@ -307,7 +314,7 @@ class SendToClientUserOnOffStatus(object):
         return dict(username=self.username,
                     online=self.online)
 
-#7.好友进退群消息
+#8.好友进退群消息
 class SendToClientGroupMemberJoinExitStatus(object):
     def __init__(self, username, groupname, status):
 
