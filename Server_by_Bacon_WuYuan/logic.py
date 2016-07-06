@@ -31,14 +31,14 @@ class Logic(object):
 
     #2.初始化群组
     def groupInit(self):
-
-        db_groups = self.dbEngine.所有的群组名()
-
-        for db_group in db_groups:
-            group = GroupObject(db_group)
-            self.serverList.addNewGroup(group)
-
-            self.getGroupMemberWithDB(group)
+        pass
+        # db_groups = self.dbEngine.所有的群组名()
+        #
+        # for db_group in db_groups:
+        #     group = GroupObject(db_group)
+        #     self.serverList.addNewGroup(group)
+        #
+        #     self.getGroupMemberWithDB(group)
 
     #3.重置服务器
     def reset(self):
@@ -432,7 +432,7 @@ class Logic(object):
             group.addMember(user)
 
             #保存关系到数据库
-            self.dbEngine.保存入库
+            # self.dbEngine.保存入库
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
             #广播进退群消息
@@ -458,7 +458,7 @@ class Logic(object):
             group.deleteMember(user)
 
             # 从数据库中删除
-            self.删除群成员()
+            # self.删除群成员()
             user.connection.send_message(json.dumps(retPackage, cls=ComplexEncoder))
 
             # 广播进退群消息
@@ -614,7 +614,7 @@ class Logic(object):
     #---from: groupInit---#
     def getGroupMemberWithDB(self, group):
 
-        members = self.dbEngine.获得群组所有成员(group.DBGroup.groupname)
+        # members = self.dbEngine.获得群组所有成员(group.DBGroup.groupname)
 
         for member in members:
             db_user = self.dbEngine.getUserInfoWithUserName(member.username)
