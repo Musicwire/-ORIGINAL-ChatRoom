@@ -67,9 +67,9 @@ class ServeList(object):
     #9.根据群组名获取群组信息
     def getGroupByGroupname(self, groupname):
 
-        for group in self.group:
-            if group.DBGroup.groupname == groupname:
-                return group
+        for gp in self.group.values():
+            if gp.DBGroup.groupname == groupname:
+                return gp
         return None
 
     #10.服务器重置
@@ -90,10 +90,9 @@ class GroupObject(object):
 
     #1.添加群组成员
     def addMember(self, user):
-
         self.members[user.DBUser.username] = user
 
-    #2.删除群组
+    #2.删除群组成员
     def deleteMember(self, user):
 
         if user.DBUser.username in self.members:
@@ -106,7 +105,6 @@ class GroupObject(object):
 
     #4.根据用户名获取成员
     def getMemberWithUsername(self, username):
-
         if username in self.members:
             return self.members[username]
         else:

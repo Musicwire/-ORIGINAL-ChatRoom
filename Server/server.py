@@ -4,7 +4,7 @@ from tornado.ioloop import IOLoop
 
 from tcpstreampackage import TCPStreamPackage
 from logic import Logic
-
+import time
 ######################################################################
 class Connection(object):
 
@@ -27,15 +27,16 @@ class Connection(object):
         pass
 
     def broadcast_streaming_message(self, data):
-        data = data.decode('utf-8')
+        #data = data.decode('utf-8')
         print('rev:  ', data)
         self._stream_package.add(data)
 
     def send_message(self, data):
-        print('send:   ', data)
-        data = data.encode('utf-8')
+        data2 = data.encode('utf-8')
+        print(b'send:   ', data2)
         try:
-            self._stream.write(data)
+            time.sleep(0.1)
+            self._stream.write(data2)
         except StreamClosedError as err:
             print("%s error:\n%r\ndata: %s" % (self._address, err, data))
 
@@ -53,12 +54,15 @@ class Connection(object):
 ######################################################################
 #
 ######################################################################
+
 class ChatServer(TCPServer):
+
     def handle_stream(self, stream, address):
         print("New connection :", address, stream)
         Connection(stream, address)
 
 if __name__ == '__main__':
+
     print("Server start ......")
     server = ChatServer()
     server.listen(8000)

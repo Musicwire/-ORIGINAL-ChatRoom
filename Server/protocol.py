@@ -18,6 +18,8 @@ class Protocol(object):
             'register':                    PackageRegister,             #注册请求邮箱认证码
             'registerauth':                PackageRegisterAuth,         #发送注册认证码完成注册
             'login':                       PackageLogin,                #登陆
+            'applymydg':                   PackageDg,                   #数字证书
+            'applyfrienddg':               PackagePublicDg,             #公钥证书
             'addfriend':                   PackageAddFriendRequest,     #添加好友
             'addfriendstatus':             PackageAddFriendStatus,      #是否同意添加
             'delfriend':                   PackageDeleteFriend,         #删除好友
@@ -25,6 +27,8 @@ class Protocol(object):
             'getfrienddetail':             PackageGetFriendDetail,      #获取好友信息
             'sendchatmsg':                 PackageSendChatMessage,      #发送信息
             'joingroup':                   PackageJoinGroup,            #加入群组
+            'getgrouplist':                PackageGetGroupList,         #获取群列表
+            'getgroupmember':              PackageGetGroupMember,       #获取群成员
             'exitgroup':                   PackageExitGroup             #退出群组
         }
 
@@ -86,6 +90,19 @@ class PackageLogin(Package):
 
         self.username = ''
         self.password = 0
+#数字证书
+class PackageDg(Package):
+    def __init__(self):
+        super(PackageDg, self).__init__()
+
+        self.username = ''
+#获取数字证书公钥
+class PackagePublicDg(Package):
+    def __init__(self):
+        super(PackagePublicDg, self).__init__()
+
+        self.username = ''
+        self.friendname = ''
 
 #4.申请添加好友
 class PackageAddFriendRequest(Package):
@@ -146,15 +163,29 @@ class PackageJoinGroup(Package):
         super(PackageJoinGroup, self).__init__()
 
         self.groupname = ''
-        self.uesrname = ''
+        self.username = ''
 
-#11.退出群组
+#11.获得群组列表
+class PackageGetGroupList(Package):
+    def __init__(self):
+        super(PackageGetGroupList, self).__init__()
+
+        self.username = ''
+
+#12.获得群组成员
+class PackageGetGroupMember(Package):
+    def __init__(self):
+        super(PackageGetGroupMember, self).__init__()
+        self.username = ''
+        self.groupname = ''
+
+#13.退出群组
 class PackageExitGroup(Package):
     def __init__(self):
         super(PackageExitGroup, self).__init__()
 
         self.groupname = ''
-        self.uesrname = ''
+        self.username = ''
 
 ####################################################################################
 # 三.发送协议
@@ -186,6 +217,7 @@ PACKAGE_ERRCODE_NOTHISUSER      = 10032 #不存在此用户
 #群组
 PACKAGE_ERRCODE_INGROUP         = 10041 #已经在群里
 PACKAGE_ERRCODE_NOTINGROUP      = 10042 #不在群里
+PACKAGE_ERRCODE_GROUPNOTEXIST   = 10043 #群组不存在
 
 #0.父包
 class SendToClientPackage(object):
@@ -254,21 +286,36 @@ class SendToClientPackageRecvAddFriendRequest(object):
 
 #4.返回添加好友结果
 class SendToClientAddFriendStatus(object):
-    def __init__(self, username, toname, sex, msg, agree):
+    def __init__(self, username, toname, sex, mail, ipaddress, msg, agree, online=False):
 
         self.fromname = username
         self.toname = toname
         self.sex = sex
+        self.mail = mail
+        self.ipaddress = ipaddress
         self.msg = msg
         self.agree = agree
+        self.online = online
 
     def reprJSON(self):
         return dict(fromname=self.fromname,
                     toname=self.toname,
                     sex=self.sex,
+                    mail=self.mail,
+                    ipaddress=self.ipaddress,
                     msg=self.msg,
-                    agree=self.agree)
+                    agree=self.agree,
+                    online=self.online)
+#证书
+class SendToClientPackageDG(object):
+    def __init__(self, username, key):
 
+        self.username = username
+        self.key = key
+
+    def reprJSON(self):
+        return dict(username=self.username,
+                    key=self.key)
 #5.好友列表返回
 class SendToClientPackageFriendsList(object):
     def __init__(self, username, sex, mail, ipaddress, online=False):
@@ -305,16 +352,36 @@ class SendToClientPackageChatMessage(object):
 
 #7.好友上线下线消息
 class SendToClientUserOnOffStatus(object):
-    def __init__(self, username, online):
+    def __init__(self, username, ipaddress, online):
 
         self.username = username
+        self.ipaddress = ipaddress
         self.online = online
 
     def reprJSON(self):
         return dict(username=self.username,
+                    ipaddress=self.ipaddress,
                     online=self.online)
 
-#8.好友进退群消息
+#8.群成员好友获取
+class SendToClientPackageGroupsMember(object):
+    def __init__(self, groupname, username):
+        self.groupname = groupname
+        self.username = username
+    def reprJSON(self):
+        return dict(groupname=self.groupname,
+                    username=self.username)
+
+#9.群列表返回消息&&好友加群成功返回消息
+class SendToClientPackageGroupsList(object):
+    def __init__(self, groupname, groupnumber):
+        self.groupname = groupname
+        self.groupnumber = groupnumber
+    def reprJSON(self):
+        return dict(groupname=self.groupname,
+                    groupnumber=self.groupnumber)
+
+#10.好友进退群消息
 class SendToClientGroupMemberJoinExitStatus(object):
     def __init__(self, username, groupname, status):
 
